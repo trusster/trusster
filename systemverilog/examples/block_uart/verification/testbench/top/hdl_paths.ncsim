@@ -1,0 +1,20 @@
+
+-INCDIR $PROJECT_HOME/../rtl/uart
+-MODELPATH $PROJECT_HOME/../rtl/uart
+-MODELPATH $PROJECT_HOME/vip/wishbone
+
+
+$TRUSS_HOME/src/truss_watchdog.v
+$PROJECT_HOME/../rtl/uart/uart_top.v
+$PROJECT_HOME/vip/wishbone/wishbone_driver.v
+
+$PROJECT_HOME/../rtl/uart/uart_debug_if.v
+$PROJECT_HOME/../rtl/uart/uart_receiver.v
+$PROJECT_HOME/../rtl/uart/uart_transmitter.v
+$PROJECT_HOME/../rtl/uart/uart_rfifo.v
+$PROJECT_HOME/../rtl/uart/uart_tfifo.v
+$PROJECT_HOME/../rtl/uart/uart_regs.v
+$PROJECT_HOME/../rtl/uart/uart_sync_flops.v
+$PROJECT_HOME/../rtl/uart/uart_wb.v
+$PROJECT_HOME/../rtl/uart/raminfr.v
+$PROJECT_HOME/vip/wishbone/wb_mast.v

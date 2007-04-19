@@ -1,0 +1,29 @@
+
++incdir+$PROJECT_HOME/rtl/uart
+-y $PROJECT_HOME/rtl/uart
+-y $PROJECT_HOME/verification/vip/wishbone
+
+-f $PROJECT_HOME/verification/vip/hdl_paths.vc
+  
+$PROJECT_HOME/rtl/uart/uart_top.v
+
+
+$PROJECT_HOME/rtl/uart/uart_debug_if.v
+$PROJECT_HOME/rtl/uart/uart_receiver.v
+$PROJECT_HOME/rtl/uart/uart_transmitter.v
+$PROJECT_HOME/rtl/uart/uart_rfifo.v
+$PROJECT_HOME/rtl/uart/uart_tfifo.v
+$PROJECT_HOME/rtl/uart/uart_regs.v
+$PROJECT_HOME/rtl/uart/uart_sync_flops.v
+$PROJECT_HOME/rtl/uart/uart_wb.v
+$PROJECT_HOME/rtl/uart/raminfr.v
+
+
+-f $PROJECT_HOME/verification/test_components/hdl_paths.vc
+
+
+$PROJECT_HOME/verification/testbench/top/interfaces_uart.sv
+
+  
+
+  

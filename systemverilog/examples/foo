@@ -1,0 +1,15 @@
+rm ./quad_uart/verification/testbench/top/Makefile
+rm ./quad_uart/verification/testbench/block_uart/Makefile
+rm ./quad_uart/verification/test_components/Makefile
+rm ./quad_uart/verification/vip/Makefile
+rm ./quad_uart/verification/vip/uart_16550/Makefile
+rm ./quad_uart/verification/vip/wishbone/Makefile
+rm ./quad_uart/verification/vip/uart/Makefile
+rm ./quad_uart/verification/tests/Makefile
+rm ./block_uart/verification/testbench/top/Makefile
+rm ./block_uart/verification/test_components/Makefile
+rm ./block_uart/verification/vip/Makefile
+rm ./block_uart/verification/vip/uart_16550/Makefile
+rm ./block_uart/verification/vip/wishbone/Makefile
+rm ./block_uart/verification/vip/uart/Makefile
+rm ./block_uart/verification/tests/Makefile

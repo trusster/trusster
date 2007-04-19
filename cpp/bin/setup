@@ -1,0 +1,6 @@
+
+setenv TRUSS_HOME $BOOK_HOME/truss
+setenv TEAL_HOME $BOOK_HOME/teal
+#make sure  SIMULATOR_HOME is set
+
+

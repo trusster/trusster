@@ -1,0 +1,4 @@
+
+setenv TRUSS_HOME $BOOK_HOME/truss
+setenv TEAL_HOME $BOOK_HOME/teal
+setenv PROJECT_HOME $BOOK_HOME/examples/quad_uart

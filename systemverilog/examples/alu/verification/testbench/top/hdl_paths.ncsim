@@ -1,0 +1,4 @@
+$TRUSS_HOME/src/truss_watchdog.v
+$PROJECT_HOME/rtl/alu_top.v
+
+

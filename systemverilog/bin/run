@@ -1,0 +1,285 @@
+#!/bin/tcsh
+
+set test_name = "basic"
+    set seed = "1"
+    set batch = 0;
+set compile = "0"
+set clean = 0;
+set dictionary = ""
+set runs = 1
+set sim_args = ""
+
+    set sim = $SIM
+
+    while ( "$argv" != "") 
+
+    set arg_val = "$argv[1]"
+
+    switch ($arg_val)
+      case -h*:
+         echo "-h help"
+         echo "-t <test> test to run"
+         echo "-seed <val> eight digit seed to use"
+      breaksw
+    case -test:
+	shift;
+       set test_name = $argv[1];
+       echo "Running test $test_name"
+	breaksw;
+    case -c:
+       set compile = 1;
+	breaksw;
+    case -clean:
+       set clean = 1;
+	breaksw;
+    case -sim_args:
+	shift;
+       set sim_args = $argv[1];
+	breaksw;
+    case -seed:
+	shift;
+       set seed = $argv[1];
+       echo "Using seed $seed"
+     breaksw;
+    case -dictionary:
+	shift;
+       set dictionary = $argv[1];
+       echo "Using dictionary $dictionary"
+     breaksw;
+    case -sim:
+	shift;
+       set sim = $argv[1];
+       echo "Using sim $sim"
+     breaksw;
+    case -batch:
+       set batch = 1;
+     breaksw;
+    case -runs:
+	shift;
+       set runs = $argv[1];
+       echo "will execute $runs runs"
+	breaksw;
+ default:
+    echo "unknown agrument: $arg_val"
+    exit 1
+    breaksw
+    endsw
+# common to all cases
+shift; 
+    end
+
+if ($clean) then
+    pushd $TEAL_HOME; make clean; popd
+    pushd $PROJECT_HOME/vip; make clean; popd
+    pushd $PROJECT_HOME/test_components; make clean; popd
+    pushd $PROJECT_HOME/tests; make clean; popd
+    pushd $TRUSS_HOME/src; make clean; popd
+#do the rest of the directories or just local? Classic problem
+#what about removing the simulator cached files?
+endif
+
+if ($compile) then
+    echo "building Teal "
+    pushd $TEAL_HOME; make; popd
+
+    echo "building the vip"
+    pushd $PROJECT_HOME/vip; make; popd
+
+    echo "building the test components"
+    pushd $PROJECT_HOME/test_components; make; popd
+
+    echo "building the tebench top"
+    pushd $PROJECT_HOME/testbench/top; make SIM=$sim; popd
+
+    echo "building the test $test_name.o"
+    pushd $PROJECT_HOME/tests; make SIM=$sim $test_name.o; popd
+#make TEST=uart_test_0 INCL="-I$PROJECT_HOME/tests -I$PROJECT_HOME/testbench/top -I$PROJECT_HOME/vip/uart -I$PROJECT_HOME/test_components"
+#GERRY- GET THE USER MAIN back to a local directory
+
+    echo "building the verification_top"
+#add the $IPATH here ???
+#    pushd $TRUSS_HOME/src; make TEST=$test_name INCL="-I$PROJECT_HOME/tests -I$PROJECT_HOME/testbench/top -I$PROJECT_HOME/vip/uart -I$PROJECT_HOME/test_components -I$PROJECT_HOME/vip/wishbone -I$PROJECT_HOME/vip/uart_1655"; popd;
+    pushd $TRUSS_HOME/src; make TEST=$test_name INCL="-I$PROJECT_HOME/tests -I$PROJECT_HOME/testbench/top"; popd;
+endif
+
+    set now = `date`
+    echo "Starting simulation at $now"
+
+    set base_run_command = ""
+
+
+
+  if ($sim == "ivl") then
+#	gcc -fPIC $(TEST).o -o $(test_name).$(sim).so $(CFLAGS) $(SP)  -fPIC -L/usr/lib -L/usr/local/lib  $(TEAL_HOME)/libteal.$(SIM).a $(TRUSS_HOME)/uart/avv_uart.$(SIM).a -static -lstdc++ -lpthread  -shared -lveriuser -lvpi
+      set base_run_command = "vvp -M /usr/lib/ivl ./$test_name"
+    endif
+
+    if ($sim == "mti") then
+        echo "Building shared library"
+	gcc -fPIC $TRUSS_HOME/src/verification_top.o $PROJECT_HOME/tests/$test_name.o  $PROJECT_HOME/testbench/top/top.$sim.a $PROJECT_HOME/test_components/test_components.$sim.a $PROJECT_HOME/vip/vip.$sim.a  $TEAL_HOME/libteal.$sim.a    -L/usr/local/lib -lstdc++ -lpthread  -shared -o  $test_name.$sim.so
+#	gcc -fPIC $(TEST).o -o $(test_name).$(sim).so $(SP)  -L.. -L/usr/local/lib  $(TEAL_HOME)/libteal.$(SIM).a $(TRUSS_HOME)/uart/avv_uart.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
+      vlib work
+#
+vlog $PROJECT_HOME/testbench/top/testbench.v -f $PROJECT_HOME/testbench/top/hdl_paths.txt
+#      vlog $test_name.v
+      set base_run_command = "vsim -c -do $PROJECT_HOME/bin/vsim.do top -pli $test_name.$SIM.so"
+    endif
+
+    if ($sim == "mti_2_0") then
+#	gcc -fPIC $(TEST).o -o $(test_name).$(sim).so $(SP)  -L.. -L/usr/local/lib  $(TEAL_HOME)/libteal.$(SIM).a $(TRUSS_HOME)/uart/avv_uart.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
+      vlib work
+      vlog $test_name.v
+      set base_run_command = "vsim -c -do vsim.do top -pli $test_name.$SIM.so"
+    endif
+    if ($sim == "vcs") then
+#	gcc -fPIC $(TEST).o -o $(test_name).$(sim).so  $(SP)  -L.. -L/usr/local/lib ../avv_uart.vcs.a $(TEAL_HOME)/libteal.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
+    set setup_base = "vcs +acc+1 +cli+4 -rpath -P pli.tab $test_name.v $test_name.$SIM.so"
+    echo "creating simv " 
+    $setup_base ;
+      set setup_base = "vcs $test_name.v" 
+      set base_run_command = "./simv "
+    endif
+
+    if ($sim == "vcs_2_0") then
+#	gcc -fPIC $(TEST).o -o $(test_name).$(sim).so  $(SP)  -L.. -L/usr/local/lib ../avv_uart.vcs_2_0.a $(TEAL_HOME)/libteal.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
+    set setup_base = "vcs +acc+1 +cli+4 +vpi -rpath -P pli.tab $test_name.v $test_name.$SIM.so"
+    echo "creating simv " 
+    $setup_base ;
+      set setup_base = "vcs $test_name.v" 
+      set base_run_command = "./simv "
+    endif
+
+
+    if (($sim == "aldec") || ($sim == "aldec_2_0")) then
+	gcc -fPIC $(TEST).o -o $(test_name).$(sim).so $(CFLAGS) $(SP)  -fPIC -L/usr/lib -L$(TEAL_HOME) -L.. -L/usr/local/lib  $(TEAL_HOME)/libteal.$(SIM).a $(TRUSS_HOME)/uart/avv_uart.$(SIM).a -static -lstdc++ -lpthread  -shared -lveriuser -lvpi 
+#      echo set user_pli ./$test_name.aldec.so > meta_aldec.do
+#      echo set worklib work >> meta_aldec.do
+##      echo vsim top  +out_file+$results_file >> meta_aldec.do
+#      echo vsim top   >> meta_aldec.do
+#      echo run 1sec >> meta_aldec.do
+#      echo quit >> meta_aldec.do
+      vlib work
+      vlog -work work $test_name.v
+
+      set base_run_command = "vsimsa meta_aldec.do";    
+    endif
+
+    if (($sim == "ncsim") || ($sim == "ncsim_2_0")) then
+        echo "Building shared library"
+	rm -f libpli.so
+	gcc -fPIC $TRUSS_HOME/src/verification_top.o $PROJECT_HOME/tests/$test_name.o  $PROJECT_HOME/testbench/top/top.$sim.a $PROJECT_HOME/test_components/test_components.$sim.a $PROJECT_HOME/vip/vip.$sim.a  $TEAL_HOME/libteal.$sim.a    -L/usr/local/lib -lstdc++ -lpthread  -shared -o libpli.so
+      mkdir ncvlog_lib
+      echo "" > hdl.var
+      echo DEFINE ncvlog_lib ./ncvlog_lib > cds.lib
+if (0) then
+ncxlmode  $PROJECT_HOME/testbench/top/testbench.v -f $PROJECT_HOME/testbench/top/hdl_paths.txt +work+ncvlog_lib
+else
+      ncvlog $PROJECT_HOME/testbench/top/testbench.v -FILE $PROJECT_HOME/testbench/top/ncsim_paths.txt  -WORK ncvlog_lib
+      ncelab -REDUCE_MESSAGES -NOCOPYRIGHT -ARR_ACCESS -ACCWARN -LIBNAME ncvlog_lib -LOGFILE ncelab.log -access +RWC ncvlog_lib.top -SNAPSHOT ncvlog_lib.ncvlog_lib:ncvlog_lib
+endif
+      set base_run_command = "ncsim -REDUCE_MESSAGES -NOCOPYRIGHT -ACCWARN -RUN -LOGFILE ncsim.log ncvlog_lib.ncvlog_lib:ncvlog_lib "
+
+    endif
+
+      
+    if ("$base_run_command" == "") then
+      echo "Unknown run command type for simulator $sim. Must be mti, mti_2_0 or ivl";
+      exit 1
+    endif
+
+
+    set dictionary_cmd = ""
+    if ($dictionary != "") then
+    set dictionary_cmd = "+dictionary+$dictionary"
+    endif
+
+
+    if (! -e results) then
+      mkdir results
+    endif
+
+################################################################################
+################################################################################
+################################################################################
+  #print "$test_list \n";
+    set total_tests = 0;  
+    set passed = 0;
+    set failed = 0;
+    set errored = 0;
+
+
+set this_seed = $seed
+
+while ($this_seed < $seed + $runs)
+
+
+  set results_file = "results/${test_name}_${this_seed}_results.txt";
+  rm $results_file
+
+    set run_command = ""
+    if (($sim == "aldec") || ($sim == "aldec_2_0")) then
+      echo set user_pli ./$test_name.$sim.so > meta_aldec.do
+      echo set worklib work >> meta_aldec.do
+      echo vsim top  "+out_file+${test_name}_${this_seed}_results.txt +seed+$this_seed $sim_args $dictionary_cmd" >> meta_aldec.do
+      echo run 1sec >> meta_aldec.do
+      echo quit >> meta_aldec.do
+      set run_command = "$base_run_command > $results_file"
+    else
+    if ($batch == 1) then
+      set run_command = "$base_run_command +seed+$this_seed $dictionary_cmd $sim_args > $results_file"
+    else
+      set run_command = "$base_run_command +seed+$this_seed $dictionary_cmd $sim_args +out_file+$results_file"
+    endif
+
+    endif
+
+    echo "\n\nRunning command: $run_command\n\n"
+    $run_command
+    wait;  #wait for it to complete
+
+#now accumulate stats
+################################################################################
+################################################################################
+################################################################################
+
+  set result_found = 0;
+  set total_tests = `expr $total_tests + 1`;
+
+  #now cout it as passed or failed
+  set pass_line = `grep -i "passed" "$results_file"`;
+  if ("$pass_line" != "")then 
+    echo "\n\n*** $test_name $this_seed $pass_line;\n\n"
+    set passed = `expr $passed + 1`
+    set result_found = 1;
+  endif
+
+
+  set fail_line = `grep -i "failed" "$results_file"`;
+  if ("$fail_line" != "") then
+    echo "\n\n*** $test_name $this_seed $fail_line;\n\n"
+    set failed = `expr $failed + 1`
+    set result_found = 1;
+  endif
+
+
+  if ($result_found == 0) then
+    echo "\n\n*** Error: Test '$test_name' $this_seed did not seem to pass or fail! ***\n\n";
+    set errored = `expr $errored + 1`
+  endif
+
+
+    set this_seed = `expr $this_seed + 1`;
+
+# end the while loop for new seed
+end
+
+
+
+################################################################################
+################################################################################
+################################################################################
+
+    set now = `date`
+    echo "Completed simulation(s) at $now"
+
+    echo "\n\nTotal results (of $total_tests): PASS: $passed FAIL: $failed ERROR: $errored\n";

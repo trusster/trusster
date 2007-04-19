@@ -1,0 +1,17 @@
++incdir+/home/mmintz/book/examples/block_uart/rtl/uart
+
+/home/mmintz/book/examples/block_uart/rtl/uart/uart_top.v
+/home/mmintz/book/examples/block_uart/verification/vip/wishbone/wishbone_driver.v
+
+/home/mmintz/book/examples/block_uart/rtl/uart/uart_debug_if.v
+/home/mmintz/book/examples/block_uart/rtl/uart/uart_receiver.v
+/home/mmintz/book/examples/block_uart/rtl/uart/uart_transmitter.v
+/home/mmintz/book/examples/block_uart/rtl/uart/uart_rfifo.v
+/home/mmintz/book/examples/block_uart/rtl/uart/uart_tfifo.v
+/home/mmintz/book/examples/block_uart/rtl/uart/uart_regs.v
+/home/mmintz/book/examples/block_uart/rtl/uart/uart_sync_flops.v
+/home/mmintz/book/examples/block_uart/rtl/uart/uart_wb.v
+/home/mmintz/book/examples/block_uart/rtl/uart/raminfr.v
+/home/mmintz/book/examples/block_uart/verification/vip/wishbone/wb_mast.v
+
+/home/mmintz/book/truss/src/truss_watchdog.v
