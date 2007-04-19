@@ -1,0 +1,9 @@
+two_ints 45 8890
+a_string Hello_World!
+
+#include dictionary_2.txt
+version 1
+
+a_double 1.22345
+hex_value abcdef0
+master_seed 23836 24215 31212
