@@ -20,7 +20,7 @@
 `timescale 1 ps / 1 ps
 
 module top;
-//   initial $teal_top;
+   initial $teal_top;
   reg[7:0] run_test;
   initial begin
 	run_test = 0;

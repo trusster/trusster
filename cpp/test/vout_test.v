@@ -20,7 +20,7 @@
 `timescale 1 ns / 1 ns
 
 module top;
-//   initial $teal_top;
+   initial $teal_top;
   reg[7:0] run_test;
   initial #3 run_test = 'b1000_0000;
 endmodule 

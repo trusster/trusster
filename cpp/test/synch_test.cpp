@@ -153,21 +153,24 @@ void verification_top ()
   vreg test_done ("top.test_done");
   test_done = 1;
 
+  log << teal_info << endm;
   //kill all tasks
 #if 0
   stop_thread (add_one_id);
   stop_thread (toggle_bits_id);
 #else
   stop_all_threads ();
+  log << teal_info << endm;
 #endif
   monitor::stop ();
-
+  log << teal_info << endm;
   if (vlog::get().how_many (vlog::error)) {
     log << teal_info << "Test Failed: Contained " << dec << vlog::get().how_many (vlog::error) << " errors." << endm;
   }
   else {
     log << teal_info << "Test Passed. "  << endm;
   }
+  finish ();
 }
 
 #include "../teal_hdl_connect.cpp"

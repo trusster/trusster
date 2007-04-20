@@ -71,16 +71,14 @@ public:
   void execute (reg op_code1, uint32* complete_time)
   {
     //      log_ << teal_info << "about to execute" << endm;
-    //    mutex_.lock ();
     mutex_sentry guard (mutex_);
-    //        log_ << teal_info << "about to execute got mutex " << do_work << endm;
+    //            log_ << teal_info << "about to execute got mutex " << do_work << endm;
     op_code = op_code1;
     do_work = 1;           //signal to verilog
-    //    log_ << teal_info << "opcode set wait for work_done:" << work_done << endm;
+    //        log_ << teal_info << "opcode set wait for work_done:" << work_done << endm;
     at (posedge (work_done)); //wait for ack
     *complete_time = vtime (); //assumes that the upper 32 are 0
-    //        log_ << teal_info << " op done  " << " at " << *complete_time << endm;
-    //        mutex_.unlock ();
+    //      log_ << teal_info << " op done  " << " at " << *complete_time << endm;
   }
 
   const std::string path_;
@@ -248,12 +246,12 @@ void verification_top ()
   bool all_done (false);
   while (! all_done) {
     completed.wait ();
-    //        log << teal_info << "A thread completed. Scanning for all_done" << endm;
+            log << teal_info << "A thread completed. Scanning for all_done" << endm;
     uint32 j(0);
     for (; (j < num_threads) && (thread_done[j]); ++j) {
     }
     all_done = (j == num_threads);
-    //        log << teal_info << " all done is : " << all_done << " j is " << j << endm;
+            log << teal_info << " all done is : " << all_done << " j is " << j << endm;
   };
 
   if (vlog::get().how_many (vlog::error)) {
@@ -267,6 +265,7 @@ void verification_top ()
   test_done = 1;
 
   //  note_task_completed ();
+  finish ();
 }
 
 #include "../teal_hdl_connect.cpp"

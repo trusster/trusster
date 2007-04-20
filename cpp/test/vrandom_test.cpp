@@ -123,6 +123,7 @@ void verification_top ()
   else {
     log << teal_info << "Test Passed. "  << endm;
   }
+  finish();
 }
 
 

@@ -20,11 +20,8 @@
 `timescale 1 ns / 1 ns
 
 module top;
-//   initial #7 $teal_top;
+   initial #7 $teal_top;
   reg[7:0] run_test;
-  initial begin
-     run_test = 8'b0;
-     #34 run_test = 'b100;
-     end
+  initial #34 run_test = 'b100;
 endmodule 
 

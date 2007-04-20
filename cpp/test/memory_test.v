@@ -18,10 +18,6 @@
  */
 
 `timescale 1 ns / 1 ns
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 module sub_module;
    reg       [122:0]  bank0  [0 : 312]; 
 
@@ -43,7 +39,7 @@ module sub_module;
 	 $display ("%t mem_test.v: %m initing sub module RAM done. \n", $time);     
       end
 
-//   initial $teal_memory_note (bank0);
+   initial $teal_memory_note (bank0);
 
    initial begin
 	#101
@@ -74,7 +70,7 @@ module top;
 	 $display ("%t from always memory[175] --> a_top_bank[175] is %0d 0x%x \n", $time, a_top_bank[175], a_top_bank[175]);	 
       end
    
-//   initial $teal_memory_note (a_top_bank);
+   initial $teal_memory_note (a_top_bank);
 
    integer index;
    initial
@@ -142,8 +138,7 @@ reg memory_change;
  	  clk <= ~clk; 
   end
 
-
-//   initial $teal_top;
+   initial $teal_top;
 
 endmodule 
 

@@ -180,6 +180,7 @@ void verification_top ()
 	<< vlog::get().how_many (vlog::error) << " error and " 
 	<< vlog::get().how_many (vlog::debug) << " debug messages." << endm;
   }
+  finish();
 }
 
 

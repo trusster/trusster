@@ -5,5 +5,5 @@ a_string Hello_World!
 version 1
 
 a_double 1.22345
-hex_value abcdef0
+hex_value 0xabcdef0
 master_seed 23836 24215 31212

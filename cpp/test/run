@@ -81,14 +81,13 @@ foreach $test (@test_list) {
   }
   elsif ($mti) {
     system ("vlib work");
-    system ("vlog -suppress 2167  +define+MTI +define+PURE=pure +incdir+.. -mfcu  $test.v  $test.sv");  
+    system ("vlog $test.v");
 
     if ($batch) {
-      $run_command = "vsim  -do vsim.do top -pli $test.$SIM.so > $results_file";
+      $run_command = "vsim -c -do vsim.do top -pli $test.$SIM.so > $results_file";
     }
     else {
-#      $run_command = "vsim -c -do vsim.do top -pli $test.$SIM.so +out_file+$results_file";    
-      $run_command = "vsim -c -suppress 3020  -suppress 3829 -do vsim.do interfaces_dut top verification_top +out_file+$results_file";    
+      $run_command = "vsim -c -do vsim.do top -pli $test.$SIM.so +out_file+$results_file";    
     }
   }
   elsif ($mti_2_0) {
@@ -114,7 +113,7 @@ foreach $test (@test_list) {
       $run_command = "ncsim -REDUCE_MESSAGES -NOCOPYRIGHT -ACCWARN -RUN -LOGFILE ncsim.log ncvlog_lib.ncvlog_lib:ncvlog_lib +out_file+$results_file"
   }
   elsif ($vcs) {
-      system ("vcs -sverilog -ntb_opts dtm +acc+1 +cli+4  $test.v +incdir+.. +define+PURE=extern $test.sv " );
+      system ("vcs +acc+1 +cli+4 -P pli.tab $test.v $test.$SIM.so " );
 #vcs +plusarg_save  $test.v -P pli.tab $test.$SIM.so +out_file+$results_file";    
     if ($batch) {
       $run_command = "./simv > $results_file";
@@ -140,9 +139,9 @@ foreach $test (@test_list) {
       $run_command = "cver -q +loadvpi=./$test.cver_2_0:vpi_compat_bootstrap $test.v +out_file+$results_file"
   }
   elsif ($aldec) {
-#      system ("echo set user_pli ./$test.aldec.so > meta_aldec.do");
+      system ("echo set user_pli ./$test.aldec.so > meta_aldec.do");
       system ("echo vlib  work >> meta_aldec.do");
-      system ("echo  vlog -work work +accr+top $test.v $test.sv  >> meta_aldec.do");
+      system ("echo  vlog -work work +accr+top $test.v >> meta_aldec.do");
       system ("echo set worklib work >> meta_aldec.do");
 
       system ("echo vsim top  +out_file+$results_file +access +w >> meta_aldec.do");
