@@ -64,47 +64,29 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     static vlog& get (); //gets the top-most one (local_vlog one initially)
 
-    void output_message (const message_list & msg) {
+    virtual void output_message (const message_list & msg) {
       message_list msg2 (output_message_ (msg)); //guide it
       if (after_me_) after_me_->output_message (msg2);
     }
 
-    void local_print (const std::string& val)
+    virtual void local_print (const std::string& val)
     {
       std::string val2 = local_print_ (val);
       if (after_me_ && (val2 != "")) after_me_->local_print (val2);
     }
     virtual unsigned int how_many (int); //given a meta-info tag, how many got printed?
 
-    void exclude (int id) {exclude (message (id, ""));}
-    void exclude (int id, std::string val) {exclude (message (id, val));}
-    void exclude (const message& match) {replace (match, message (0, ""));}
-
-    void replace (int id1, int id2) {replace (message (id1, ""), message (id2, ""));}
-    void rename (int id1, const std::string& match, const std::string& rep)
-    {replace (message (id1, match), message (id1, rep));}
-    void promote (int id1, int id2)      {replace (message (id1, ""), message (id2, ""));}
-    void replace (int id1, int id2, const std::string& match, const std::string& rep)
-    {replace (message (id1, match), message (id2, rep));}
-    void replace (const message&, const message&);
-
-    //to manipluate it directly...
-    message_guide_list guide_list () const;
-    void guide_list (const message_guide_list &);
-
-    //if the vlog::output_message_() decides to put out a meddage_id's string...
-    virtual std::string local_print_ (const std::string& val) = 0;
 
   protected:
-    //it exists and can be called.
+    //The impelmentation exists and just increments how_many(id) and packs into a string
     virtual message_list output_message_ (const message_list& m) = 0; 
-
+    //if the vlog::output_message_() decides to put out a meddage_id's string...
+    virtual std::string local_print_ (const std::string& val) = 0;
 
     vlog ();
 
   protected:
     static vlog* the_;
-    message_guide_list message_guide_list_; //what order to put things out
     std::map <int, int> id_count_;
 
     //    vlog (const vlog&);

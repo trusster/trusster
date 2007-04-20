@@ -51,7 +51,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     bool signalled_;
     uint64 time_at_signal_;
     pthread_cond_t condition_;
-    std::deque<pthread_t> waiting_;
+    //    std::deque<pthread_t> waiting_;
+    std::map<pthread_t, pthread_cond_t*> waiting_;
 
   private:
     condition& operator= (const condition&) ;
@@ -59,6 +60,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   };
 
 
+#define MUTEX_NEW
   /////////////////////////////////////////////////////
   /////////////////////////////////////////////////////
   class mutex {
@@ -72,8 +74,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     const std::string name_;
 
   protected:
+#ifndef MUTEX_NEW
     condition condition_;
+#else
     uint32 waiters_;
+    std::deque<condition *> condition_dq;
+#endif
     pthread_mutex_t mutex_;
     pthread_mutex_t waiters_mutex_;
     bool someone_running;

@@ -194,10 +194,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   inline sensitivity operator|| (const vreg_match& lhs, const vreg_match& rhs) 
   {sensitivity returned (lhs); returned.push (rhs); return returned;}
 
-  inline sensitivity& operator|| (const vreg_match& lhs, sensitivity& s) 
+  inline sensitivity operator|| (const vreg_match& lhs, sensitivity s) 
   {s.push (lhs); return s;}
 
-  inline sensitivity& operator|| (sensitivity& s, const vreg_match& rhs)
+  inline sensitivity operator|| (sensitivity s, const vreg_match& rhs)
   {s.push (rhs); return s;}
 
   /////////////////////////////////////////////////////
