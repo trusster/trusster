@@ -299,9 +299,10 @@ public:
     while ( num_spawned ) {
       pthread_mutex_lock( &main_mutex );
       next_spawn = spawned_threads_fifo.front( );
+      spawned_threads_fifo.pop_front( );
       pthread_mutex_unlock (&main_mutex); 
       new_id = next_spawn.id;
-      //      local_log << teal_info << "Signalling thread " << ( long )new_id << " on condition " << ( long )next_spawn.pCond << endm;
+      //      local_log << teal_info << "Signalling thread " << teal::thread_release::thread_name_ (new_id) << " on condition " << ( long )next_spawn.pCond << endm;
       thread_running_( new_id );
       pthread_cond_signal( next_spawn.pCond );
       do {
@@ -315,7 +316,7 @@ public:
 #endif
       
       pthread_mutex_lock( &main_mutex );
-      spawned_threads_fifo.pop_front( );
+      //      spawned_threads_fifo.pop_front( ); 
       num_spawned = spawned_threads_fifo.size( );
       pthread_mutex_unlock( &main_mutex );
 
@@ -533,12 +534,12 @@ static void * start_thread_wrapper ( void *t_params )
   spawn.pCond = pCond;
   thread_release::spawned_threads_fifo.push_back( spawn );
 
-  local_log << teal_info << "Suspending thread " << ( long )id << " on condition " << ( long )pCond << endm;
+  //  local_log << teal_info << "Suspending thread " << teal::thread_release::thread_name_ (id) << " on condition " << ( long )pCond << endm;
   pthread_cond_signal( &thread_release::new_thread_waiting );
   do {
     pthread_cond_wait  ( pCond, &thread_release::main_mutex );
   } while ( thread_release::threadIsWaiting( id ) );
-
+  //  local_log << teal_info << "Now Running thread " << teal::thread_release::thread_name_ (id) << endm;
   delete pCond;
 
   pthread_mutex_unlock( &thread_release::main_mutex );
