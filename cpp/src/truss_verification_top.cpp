@@ -60,6 +60,7 @@ namespace truss {
       teal::vlog::get().local_print ("Shutdown called while shutting down! Panic exit simulation.");
       teal::finish ();
     }
+    sentry = true;
 
     {
       //   disable_at_sentry no_at = disable_at_sentry ();
@@ -120,32 +121,30 @@ void verification_top ()
 
     teal::vrandom::init_with_seed (teal::dictionary::find ("seed", SEED));
     log << teal_info << "Using seed: " << teal::dec << teal::dictionary::find ("seed", SEED) << teal::endm;
+ 
+    //run the watchdog through its dance to make sure it catches any hang conditions
+    watchdog_0->time_zero_setup ();
+    watchdog_0->out_of_reset (verification_component::cold);
+    watchdog_0->write_to_hardware ();
+    watchdog_0->start ();
 
-    //    interrupt_handler* interrupt_handler_0 = interrupt_handler::build ();
 
     log << teal_debug << "About to randomize" << teal::endm;
 
     test_0->randomize ();          //first to allow to setup testbench
     testbench_0->randomize ();
 
-#if 0
-    memory_manager_0->randomize (); //set memory ranges?
-    interrupt_handler_0->randomize (); //necessary?
-    register_access_0->randomize (); //pick method?
-#endif
 
     log << teal_debug << "About to time_zero" << teal::endm;
     {
       //   disable_at_sentry no_at = disable_at_sentry ();
       testbench_0->time_zero_setup ();
-      watchdog_0->time_zero_setup ();
       test_0->time_zero_setup ();  //test last to be able to undo incorrect testbench setup
     }
 
     log << teal_debug << "About to out of reset" << teal::endm;
 
     testbench_0->out_of_reset (verification_component::cold);
-    watchdog_0->out_of_reset (verification_component::cold);
     test_0->out_of_reset (verification_component::cold);
 
 
@@ -153,14 +152,12 @@ void verification_top ()
     log << teal_debug << "About to write to hardware" << teal::endm;
 
     testbench_0->write_to_hardware ();
-    watchdog_0->write_to_hardware ();
     test_0->write_to_hardware ();
 
     log << teal_debug << "About to start" << teal::endm;
 
-    //interrupt_handler::start ();
     testbench_0->start ();
-    watchdog_0->start ();
+
     test_0->start ();
 
     log << teal_debug << "About to wait for completion." << teal::endm;
