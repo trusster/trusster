@@ -499,7 +499,7 @@ void thread_cleanup (void* context)
     vpi_remove_cb ((*it)->the_call_back);
     (*it)->the_call_back = 0;
 #else
-#if defined (aldec) || defined (vcs) || defined (cver)
+#if defined (xaldec) || defined (vcs) || defined (cver)
     acc_vcl_delete ((*it)->get_handle(), (consumer_function)the_acc_callback, (char*) (*it), vcl_verilog);
 #else
     acc_vcl_delete ((*it)->get_handle(), the_acc_callback, (char*) (*it), vcl_verilog);
@@ -597,7 +597,8 @@ void teal::finish () {
 #else 
     tf_dofinish ();
 #endif
-    local_log << teal_error << "teal::finish(). After HDL finish called!!!" << endm;
+    local_log << teal_debug << "teal::finish(). After HDL finish called!!!" << endm;
+    exit (0);
 }
 
 
@@ -635,7 +636,7 @@ void teal::at (const sensitivity& s)
     (*it)->the_call_back = vpi_register_cb (&call_back);
     //       local_log << teal_info << " after vpi_register_cb of " << (int)(*it)->the_call_back << " handle " << (int)call_back.obj << teal::endm;
 #else
-#if defined (aldec) || defined (vcs) || defined (cver)
+#if defined (xaldec) || defined (vcs) || defined (cver)
     acc_vcl_add ((*it)->get_handle(), (consumer_function)the_acc_callback, (char*) (*it), vcl_verilog);
 #else
     acc_vcl_add ((*it)->get_handle(), the_acc_callback, (char*) (*it), vcl_verilog);
@@ -670,7 +671,7 @@ void teal::at (const sensitivity& s)
     //    local_log << teal_info << "Thread " << thread_name (pthread_self()) << " removed callback on. " << **it << endm;
     (*it)->the_call_back = 0;
 #else
-#if defined (aldec) || defined (vcs) || defined (cver)
+#if defined (xaldec) || defined (vcs) || defined (cver)
     acc_vcl_delete ((*it)->get_handle(), (consumer_function)the_acc_callback, (char*) (*it), vcl_verilog);
 #else
     acc_vcl_delete ((*it)->get_handle(), the_acc_callback, (char*) (*it), vcl_verilog);
