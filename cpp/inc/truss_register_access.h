@@ -54,13 +54,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #endif
 
-#if defined SIMULATOR
+#if defined (SIMULATOR)
 #define truss_field_put(data, name, value) \
 {\
   data(name##_max,name##_min) = value;\
 }
 
-#define truss_field_get(data, name) data(name##_max,name##_min)
+#define truss_field_get(data, name) teal::reg (data(name##_max,name##_min))
 #else
 //WARNING- assumes a 32 bit register
 #define truss_field_mask(maxf,minf) ((~0L >> (32-maxf)) << minf)

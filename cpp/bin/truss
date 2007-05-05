@@ -227,9 +227,9 @@ if ($options{"hdl_compile"}){
 
 
     $compile_hdl = ("cd $RESULT_DIR; " .
-		    "$ENV{SIMULATOR_HOME}/etc/setenv; " .
+		    "$ENV{\"SIMULATOR_HOME\"}/etc/setenv; " .
 		    "vlib work; " .
-		    "vlog -work work +accr+top -f $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.aldec  $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.v " );
+		    "vlog -dbg -work work +accr+top -f $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.aldec  $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.v " );
     truss_system ($compile_hdl);
   }
   elsif (uc $ENV{SIM} eq "NCSIM"){
@@ -344,8 +344,8 @@ if ($options{"run"}){
     }
     elsif (uc $ENV{SIM} eq "ALDEC"){
       $the_run_command = ("cd $RESULT_DIR; " .
-			  "source $ENV{\"ALDEC_HOME\"}/etc/setenv " .
-			  "vsim -do $ENV{\"TRUSS_HOME\"}/bin/asim.do " .
+#			  "source $ENV{\"SIMULATOR_HOME\"}/etc/setenv ; " .
+			  "vsim -dbg -do $ENV{\"TRUSS_HOME\"}/bin/asim.do " .
 			  "work.top ".
 			  "-pli $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so " .
 			  "+seed+$this_seed " .

@@ -64,6 +64,7 @@ void uart::uart_16550_sfm::do_rx_thread_ () {
     teal::reg data (0,8);
     truss_reg_read8 (bus_address (UART_REG_II), &data);
     log_ << teal_debug << " Interrupt Identification:" << data << teal::endm;
+#if 0
 #if 1
     if ((truss_field_get (data, interrupt_identification) == interrupt_identification_received_data) ||
 	(truss_field_get (data, interrupt_identification) == interrupt_identification_timeout)) {
@@ -97,6 +98,10 @@ void uart::uart_16550_sfm::do_rx_thread_ () {
 
     do_receive_completed_ (current_rx);
     //how to clear interrupt???
+#endif
+#else
+      truss_reg_read8 (bus_address (UART_REG_RB), &current_rx.data);
+    do_receive_completed_ (current_rx);
 #endif
 #if 0
     truss_reg_read8 (bus_address (UART_REG_II), &data);
