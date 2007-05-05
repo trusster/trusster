@@ -1010,7 +1010,7 @@ teal::mutex::~mutex ()
 //
 void teal::mutex::lock ()
 {
-  //    local_log << teal_info << thread_name (pthread_self ()) << " teal::mutex::lock \"" << name_ << "\"  begin " << endm;
+      local_log << teal_info << thread_name (pthread_self ()) << " teal::mutex::lock \"" << name_ << "\"  begin " << endm;
   if (pthread_mutex_trylock (&mutex_)) {
     pthread_mutex_lock (&waiters_mutex_);
 
@@ -1023,26 +1023,30 @@ void teal::mutex::lock ()
     condition_dq.push_back( pNewCondition );
 #endif
     waiters_++;
-    //    local_log << teal_info << " teal::mutex \"" << name_ << "\" lock begin wait. waiters_: " << waiters_ << endm;
+        local_log << teal_info << " teal::mutex \"" << name_ << "\" lock begin wait. waiters_: " << waiters_ << endm;
     pthread_mutex_unlock (&waiters_mutex_);
 
 #ifdef MUTEX_NEW
     pNewCondition->wait( );
-    pthread_mutex_lock (&waiters_mutex_);
+        local_log << teal_info << " teal::mutex " << name_ << " lock begin back from wait. waiters_: " << waiters_ << endm;
+	pthread_mutex_lock (&waiters_mutex_);
+	if (condition_dq.front() != pNewCondition) local_log << teal_fatal << " Condition queue mixup" << endm;
+
     condition_dq.pop_front( );
     delete pNewCondition;
     pthread_mutex_unlock (&waiters_mutex_);
 #else
     condition_.wait ();
-    //    local_log << teal_info << " teal::mutex " << name_ << " lock begin back from wait. waiters_: " << waiters_ << endm;
+        local_log << teal_info << " teal::mutex " << name_ << " lock begin back from wait. waiters_: " << waiters_ << endm;
 #endif
     while (pthread_mutex_trylock (&mutex_)) {
             sched_yield (); //posix sleep thinge
     }
     someone_running = true;
-    //    local_log << teal_info << " teal::mutex " << name_ << " lock back from signal. waiters_: " << waiters_ << endm;
+        local_log << teal_info << " teal::mutex " << name_ << " lock back from signal. waiters_: " << waiters_ << endm;
   }
-  //  local_log << teal_info <<  thread_name (pthread_self ()) << " teal::mutex::lock " << name_ << " acquired. " << endm;
+
+   local_log << teal_info <<  thread_name (pthread_self ()) << " teal::mutex::lock " << name_ << " acquired. " << endm;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -1050,7 +1054,7 @@ void teal::mutex::lock ()
 void teal::mutex::unlock ()
 {
   //  local_log << teal_info << thread_name (pthread_self ()) << " teal::mutex::unlock " << name_ << " begin " << endm;
-  //  local_log << teal_info << " teal::mutex " << name_ << " unlock begin " << endm;
+    local_log << teal_info << " teal::mutex " << name_ << " unlock begin " << endm;
     
   pthread_mutex_lock (&waiters_mutex_);
 
@@ -1059,17 +1063,17 @@ void teal::mutex::unlock ()
     pthread_mutex_unlock (&waiters_mutex_);
     someone_running = false; //ensure that someone other than me gets the mutex next 
 #ifdef MUTEX_NEW
-    pthread_mutex_unlock (&mutex_);
     condition *pCond = condition_dq.front( );
+    pthread_mutex_unlock (&mutex_);
     pCond->signal( );
 #else
     condition_.signal ();
     pthread_mutex_unlock (&mutex_);
 #endif
-    //local_log << teal_info << thread_name (pthread_self ()) << " teal::mutex " << name_ << " after signal " << endm;
+    local_log << teal_info << thread_name (pthread_self ()) << " teal::mutex " << name_ << " after signal " << endm;
     while (! someone_running) {      
       sched_yield (); //posix sleep thinge
-      //local_log << teal_info << (int) (pthread_self ()) << " teal::mutex " << name_ << " waiting for someone else " << endm;
+      local_log << teal_info << (int) (pthread_self ()) << " teal::mutex " << name_ << " waiting for someone else " << endm;
     };
   }
   else {
@@ -1077,7 +1081,7 @@ void teal::mutex::unlock ()
     pthread_mutex_unlock (&mutex_);
   }
 
-  //  local_log << teal_info << thread_name (pthread_self ()) << " teal::mutex::unlock " << name_ << " end lock released " << endm;
+  local_log << teal_info << thread_name (pthread_self ()) << " teal::mutex::unlock " << name_ << " end lock released " << endm;
 }
 
 #ifdef FOO
