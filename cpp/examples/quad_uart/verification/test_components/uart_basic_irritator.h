@@ -40,7 +40,7 @@ namespace uart {
 class basic_irritator : public truss::irritator, public basic_test_component {
  public:
   basic_irritator (const std::string& n, uart::generator* g, truss::verification_component* b, uart::checker* c) : 
-    truss::thread (n), truss::irritator (n), basic_test_component  (n, g,b,c), test_component (n) {
+    truss::thread (n), test_component (n), truss::irritator (n), basic_test_component  (n, g,b,c) {
     teal::vout log_ (n); log_ << teal_debug << " ctor" << teal::endm;
   }
 
