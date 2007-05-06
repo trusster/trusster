@@ -94,8 +94,8 @@ void uart::basic_test_component::wait_for_completion_ ()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 uart::basic_test_component::basic_test_component (const std::string& n, generator* g, verification_component* b, checker* c) : 
-      test_component (n),  thread (n),
-      generator_ (g), bfm_ (b), checker_ (c), block_size_ (0), block_delay_ (0) 
+  thread (n), test_component (n),
+  generator_ (g), bfm_ (b), checker_ (c), block_size_ (0), block_delay_ (0) 
 {
   truss_assert (g);
   truss_assert (b);
