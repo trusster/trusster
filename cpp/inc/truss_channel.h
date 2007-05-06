@@ -37,6 +37,7 @@ namespace truss {
     template<class data_type> 
       class channel_put {
       public:
+        virtual ~channel_put () {}
         void put (const data_type& d)  {put_ (d);}
         size_t size ()  {return size_ ();}
 	std::string name () {return name_ ();}
@@ -53,6 +54,8 @@ namespace truss {
     template<class data_type> 
       class channel_get {
       public:
+
+         virtual ~channel_get () {};
          data_type get ()  {return get_ ();}
          size_t size ()  {return size_ ();}
 	 std::string name () {return name_ ();}
