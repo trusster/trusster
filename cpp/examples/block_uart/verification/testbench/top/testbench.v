@@ -129,8 +129,8 @@ module top;
      begin
 	#1000;
 	RTS = 1;
-	$display ("%t Starting Teal", $time);
-	$teal_top;
+	$display ("%t Starting Truss", $time);
+	$verification_top;
      end
 
 

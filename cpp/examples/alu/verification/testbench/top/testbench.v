@@ -57,8 +57,8 @@ module top;
 
    initial 
      begin
-	$display ("%t Starting Teal", $time);
-	$teal_top;
+	$display ("%t Starting Truss", $time);
+	$verification_top;
      end
 
    watchdog watchdog (.timeout (timeout));

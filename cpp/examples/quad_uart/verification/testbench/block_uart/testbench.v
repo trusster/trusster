@@ -121,8 +121,8 @@ module top;
    initial 
      begin
 	#100;
-	$display ("%t Starting Teal", $time);
-	$teal_top;
+	$display ("%t Starting Truss", $time);
+	$verification_top;
      end
 
    reg[7:0] init_done;

@@ -203,6 +203,7 @@ if ($options{"hdl_compile"}){
 				"$ENV{\"PROJECT_HOME\"}/verification/test_components/test_components.$ENV{\"SIM\"}.a " . 
 				"$ENV{\"PROJECT_HOME\"}/verification/vip/vip.$ENV{\"SIM\"}.a " . 
 				"$ENV{\"TEAL_HOME\"}/libteal.$ENV{\"SIM\"}.a " . 
+				"/usr/lib/libpthread.a " .
 				"-L/usr/local/lib -lstdc++ -lpthread -shared " . 
 				"-o $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so ");
 
@@ -350,7 +351,8 @@ if ($options{"run"}){
 			  "-pli $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so " .
 			  "+seed+$this_seed " .
 			  "$dictionary_cmd " .
-			  "+out_file+$result_file ".
+			  $options{"args_run"} .
+			  " +out_file+$result_file ".
 			  "+access +w"
 			 );
 
