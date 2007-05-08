@@ -64,7 +64,7 @@ void force_memory_reference () {
 s_tfcell veriusertfs[] =
 {
   //type, data, check, size, call, misc, verilog name, ...
-  { usertask, 0, 0, 0, (p_tffn)teal_top_call, 0, "$teal_top", 0, 0, 0 },
+  { usertask, 0, 0, 0, (p_tffn)teal_top_call, 0, "$verification_top", 0, 0, 0 },
   { usertask, 0, 0, 0, (p_tffn)teal_memory_note_call, 0, "$teal_memory_note", 0, 0, 0 },
   {0} /*** final entry must be 0 ***/
 };
