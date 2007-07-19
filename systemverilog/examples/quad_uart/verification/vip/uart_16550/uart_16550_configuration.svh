@@ -39,7 +39,6 @@ class uart_configuration_16550 extends uart_configuration;
    endfunction 
    
    function void randomize2 ();
-`ifdef fucme
 	super.randomize2 ();
       //correct cases that the 16550 cannot handle.
       if ((stop_bits_ == uart::two) && (data_size_ == 5)) begin
@@ -50,7 +49,6 @@ class uart_configuration_16550 extends uart_configuration;
 	stop_bits_ = uart::two;
 	log_.debug ("Corrected stps bits from 1.5 up to 2 (data_size is 6, 7, or 8).");
       end
-`endif
    endfunction // post_randomize
    
 endclass 

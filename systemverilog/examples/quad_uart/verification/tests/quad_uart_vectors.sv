@@ -44,13 +44,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function void quad_uart_vectors::standard_configuration (string name) ;
+  function void quad_uart_vectors::standard_configuration (string name) ;
     //add configuration default constraints
     teal::dictionary_put ({name, "_min_baud"}, "4800",    teal::default_only);
-    teal::dictionary_put ({name, "_max_baud"}, "19200",    teal::default_only);
+//    teal::dictionary_put ({name, "_max_baud"}, "19200",    teal::default_only);
+    teal::dictionary_put ({name, "_max_baud"}, "9600",    teal::default_only);
     teal::dictionary_put ({name, "_min_data_size"}, "5",  teal::default_only);
     teal::dictionary_put ({name, "_max_data_size"}, "8", teal::default_only);
-endfunction
+  endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,7 +59,7 @@ function void quad_uart_vectors::standard_generator (string name) ;
     //add generator default constraints
     teal::dictionary_put ({name, "_min_word_delay"}, "1", teal::default_only);
     teal::dictionary_put ({name, "_max_word_delay"}, "1", teal::default_only);
-endfunction
+  endfunction
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,10 +70,23 @@ function quad_uart_vectors::new (testbench tb, truss::watchdog w, string n);
    `truss_assert (number_of_uarts >= 2); 
 endfunction
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+`define for_each(data, method)\
+    for (integer i = 0; i < data.size (); i++) begin \
+      data[i].method ();\
+   end
+
+
+`define for_each_1(data, method, param)\
+    for (integer i = 0; i < data.size (); i++) begin \
+      data[i].method (param);\
+   end
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-task quad_uart_vectors::randomize2 ();
+function void quad_uart_vectors::randomize2 ();
    string msg;
    int foo;
    
@@ -120,6 +134,7 @@ task quad_uart_vectors::randomize2 ();
 					 testbench_.uart_group[i].uart_program_sfm, 
 					 testbench_.uart_group[i].uart_ingress_checker);
 	 standard_generator (testbench_.uart_group[i].uart_ingress_generator.name );
+	 bi.randomize2 ();
 	 irritators_.push_back (bi);
 	 
 
@@ -130,21 +145,13 @@ task quad_uart_vectors::randomize2 ();
 		    testbench_.uart_group[i].uart_egress_checker);
 	 standard_generator (testbench_.uart_group[i].uart_egress_generator.name );
 	 standard_configuration (testbench_.uart_group[i].uart_configuration.name);
+	 bi.randomize2 ();
 	 irritators_.push_back (bi);
       end
    end
-endtask // quad_uart_vectors
 
-`define for_each(data, method)\
-    for (integer i = 0; i < data.size (); i++) begin \
-      data[i].method ();\
-   end
-
-
-`define for_each_1(data, method, param)\
-    for (integer i = 0; i < data.size (); i++) begin \
-      data[i].method (param);\
-   end
+  testbench_.report ("quad_uart_vectors::randomize2() end ");
+endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -192,10 +199,10 @@ endtask
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-task quad_uart_vectors::report (string prefix) ;
+function void quad_uart_vectors::report (string prefix) ;
   uart_test_component_ingress_.report (prefix); 
   uart_test_component_egress_.report (prefix);
 
   `for_each_1 (irritators_, report, prefix)
-endtask
+endfunction
   

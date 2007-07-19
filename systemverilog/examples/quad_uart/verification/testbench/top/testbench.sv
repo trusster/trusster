@@ -91,11 +91,9 @@ task testbench::out_of_reset (truss::reset r);
 endtask
 
 function void testbench::randomize2 ();  
-`ifdef funcme
   for (teal::uint32 i = 0; i < number_of_uarts; ++i) begin
         uart_group[i].uart_configuration.randomize2 ();
   end
-`endif
 endfunction
 
 task testbench::write_to_hardware (); endtask
@@ -105,11 +103,9 @@ task testbench::start (); log_.info ("testbench starting"); endtask
 //no wait_for_completion, let the test/exercisors do that
 task testbench::wait_for_completion (); endtask
 function void testbench::report (string prefix);  
-`ifdef funcme
   for (teal::uint32 i = 0; i < number_of_uarts; ++i) begin
         uart_group[i].uart_configuration.report (prefix);
   end
-`endif
 endfunction
 
 
