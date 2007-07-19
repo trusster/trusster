@@ -22,8 +22,8 @@ $PROJECT_HOME/rtl/uart/raminfr.v
 
 -f $PROJECT_HOME/verification/test_components/hdl_paths.vc
 
-+incdir+$PROJECT_HOME/verification/testbench/top
-$PROJECT_HOME/verification/testbench/top/interfaces_uart.sv
-$PROJECT_HOME/verification/testbench/top/uart_group.sv
++incdir+$PROJECT_HOME/verification/testbench/block_config
+$PROJECT_HOME/verification/testbench/block_uart/interfaces_uart.sv
+$PROJECT_HOME/verification/testbench/block_uart/uart_group.sv
 
   

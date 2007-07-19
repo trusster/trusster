@@ -160,7 +160,6 @@ class __uart_configuration_chooser;
    endfunction // new
 
    function string sreport ();
-`ifdef fucme
       string msg1;
       string msg2;
       string msg3;
@@ -175,7 +174,6 @@ class __uart_configuration_chooser;
       msg5 = $psprintf ("Generate use_dtr_dsr_probability is %0d", use_dtr_dsr_probability);
       msg6 = $psprintf ("Generate use_cts_rts_probability is %0d", use_cts_rts_probability);
       return {msg1,msg2, msg3, msg4, msg5, msg6};
-`endif
    endfunction // string
    
    function void post_randomize ();

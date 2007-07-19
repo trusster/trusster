@@ -44,21 +44,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  task quad_uart_vectors::standard_configuration (string name) ;
+function void quad_uart_vectors::standard_configuration (string name) ;
     //add configuration default constraints
     teal::dictionary_put ({name, "_min_baud"}, "4800",    teal::default_only);
     teal::dictionary_put ({name, "_max_baud"}, "19200",    teal::default_only);
     teal::dictionary_put ({name, "_min_data_size"}, "5",  teal::default_only);
     teal::dictionary_put ({name, "_max_data_size"}, "8", teal::default_only);
-  endtask
+endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  task quad_uart_vectors::standard_generator (string name) ;
+function void quad_uart_vectors::standard_generator (string name) ;
     //add generator default constraints
     teal::dictionary_put ({name, "_min_word_delay"}, "1", teal::default_only);
     teal::dictionary_put ({name, "_max_word_delay"}, "1", teal::default_only);
-  endtask
+endfunction
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,14 +82,14 @@ task quad_uart_vectors::randomize2 ();
    max_uart_index = teal::dictionary_find_integer ({name_, "_max_uart_index"}, (number_of_uarts - 1));
    `truss_assert (randomize ());
    
-   foo = $sformat (msg, "Selected Test component index of %0d", uart_index);
+   msg = $psprintf ("Selected Test component index of %0d", uart_index);
    log_.info (msg);
 
 
    //now for the test components...
    begin
       string id;
-      int foo = $sformat (id, "%0d", uart_index);
+      id = $psprintf ("%0d", uart_index);
 
       uart_test_component_ingress_ = new  ({"uart_test_component_ingress ", id}, 
 						       testbench_.uart_group[uart_index].uart_ingress_generator,  
@@ -112,7 +112,7 @@ task quad_uart_vectors::randomize2 ();
    //now for the test irritators...
    for (teal::uint32 i = 0; i < number_of_uarts; ++i) begin
       string id;
-      int foo = $sformat (id, "%0d", i);
+      id = $psprintf ("%0d", i);
 
       if (i != uart_index) begin
 	 uart_basic_irritator bi = new  ({"uart_test_component_ingress ", id}, 
@@ -133,7 +133,6 @@ task quad_uart_vectors::randomize2 ();
 	 irritators_.push_back (bi);
       end
    end
-
 endtask // quad_uart_vectors
 
 `define for_each(data, method)\

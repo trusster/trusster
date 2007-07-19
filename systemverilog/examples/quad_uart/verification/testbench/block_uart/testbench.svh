@@ -33,8 +33,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `include "truss.svh"
 
+`ifdef MTI
+  `include "uart_group.svh"
+  `include "wishbone_driver.svh"
+`else
   typedef class uart_group;
   typedef class wishbone_driver;
+`endif
 
 parameter teal::uint32 number_of_uarts = 4;  //4 availible, tests should chose one
 
@@ -44,15 +49,16 @@ parameter teal::uint32 number_of_uarts = 4;  //4 availible, tests should chose o
  class testbench extends truss::testbench_base;
     uart_group uart_group[number_of_uarts];
   wishbone_driver wishbone_driver_;
+    virtual top_reset	     top_reset_;
 
-  extern function new (string name);
+  extern function new (string name, truss::interfaces_dut dut_base);
 
   extern virtual task time_zero_setup ();
   extern virtual task out_of_reset (truss::reset r);
-  extern virtual task randomize2 ();
+  extern virtual function void randomize2 ();
   extern virtual task write_to_hardware ();
   extern virtual task start ();
   extern virtual task wait_for_completion ();
-  extern virtual task report (string prefix);
+  extern virtual function void report (string prefix);
 endclass
 `endif

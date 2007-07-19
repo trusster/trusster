@@ -47,7 +47,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class uart_basic_test_component extends truss::test_component;
    extern function new (string n, uart_generator g, truss::verification_component b, uart_checker c);
 
-    extern virtual function void  randomize2 ();
+    extern virtual function void randomize2 ();
 
     virtual task  time_zero_setup (); bfm_.time_zero_setup (); endtask
 
@@ -55,13 +55,13 @@ class uart_basic_test_component extends truss::test_component;
 
     virtual task  write_to_hardware (); bfm_.write_to_hardware (); endtask
 
-    extern virtual task  generate2 ();
-    extern virtual task  wait_for_completion_ ();
-    extern virtual task  start_components_ ();
+    extern virtual protected task  generate2 ();
+    extern virtual protected task  wait_for_completion_ ();
+    extern virtual protected task  start_components_ ();
 
     protected uart_generator                      generator_;
     protected truss::verification_component       bfm_; 
-    uart_checker                        checker_;
+     uart_checker                        checker_;
 
 
     rand protected teal::uint8 word_count_;

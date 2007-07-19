@@ -60,7 +60,7 @@ task wishbone_driver::to_memory (bit [63:0] address, input bit [MAX_DATA - 1:0] 
    mutex_.get (1);
    #1234;
 
-   foo = $sformat (msg, "to_memory: 0x%0x 0x%0x (size %d)", address, value, size);
+   msg = $psprintf ("to_memory: 0x%0x 0x%0x (size %d)", address, value, size);
    log_.debug (msg);
    
    wishbone_driver_interface_.op_code_ <= 0;
@@ -126,7 +126,7 @@ task wishbone_driver::from_memory (bit [63:0] address, inout bit [MAX_DATA - 1:0
    begin
       string msg;
       int foo;
-      foo = $sformat (msg, "from_memory (completed): 0x%0x 0x%0x (size %d)", address, returned, size);
+      msg = $psprintf ("from_memory (completed): 0x%0x 0x%0x (size %d)", address, returned, size);
       log_.debug (msg);
    end      
    mutex_.put (1);

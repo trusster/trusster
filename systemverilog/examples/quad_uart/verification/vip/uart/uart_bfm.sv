@@ -65,11 +65,8 @@ endfunction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function string uart_word::sreport ();
-
    string msg;
-`ifdef fucme
    msg = $psprintf ("delay of %0d status: %0d 0x%x", bit_start_delay, status_, data);
-`endif
    return msg;
 endfunction
 
@@ -77,7 +74,6 @@ endfunction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function void uart_word::randomize2 (teal::uint8 min_delay, teal::uint8 max_delay, 
 			    uart::data_type min_data, uart::data_type max_data);
-`ifdef fucme
    teal::vout log_ = new ("uart_word:: randomize ()");
    data_min_ = min_data;
    data_max_ = max_data;
@@ -88,7 +84,6 @@ function void uart_word::randomize2 (teal::uint8 min_delay, teal::uint8 max_dela
    for (int i = data_size_; i < uart::max_uart_width; ++i) begin
       data[i] = 0;
    end
-`endif
 endfunction 
 
 

@@ -54,10 +54,8 @@ class uart_block;
 
    function string sreport ();
       string msg;
-`ifdef fucme
       msg = $psprintf ("Block of %0d words. ", words_.size ());
       for (int i = 0; i < words_.size (); ++i) msg = {msg, " ", words_[i].sreport ()};
-`endif
       return msg;
    endfunction
       

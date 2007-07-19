@@ -32,35 +32,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 `define __uart_basic_irritator__
 
 `include "uart_basic_test_component.svh"
-`include "uart_checker.svh"
 
-//See the basic exerciser for the control words.
-
-class uart_basic_irritator extends truss::irritator;
-   function new (string n, uart_generator g, truss::verification_component b, uart_checker c);
-      super.new (n);
-      basic_test_component_ = new (n, g, b, c);
-   endfunction
+class uart_basic_irritator extends  uart_basic_test_component;
+ public:
+   function uart_basic_test_component::new (string n, uart_generator g, truss::verification_component b, uart_checker c);
+      super.new ({n, " irritator:"}, g, b, c);
+   endfunction // uart_basic_test_component
    
-
-    virtual task report (string prefix);
-       basic_test_component_.report (prefix);
-    endtask // report
-     
-  virtual task time_zero_setup (); basic_test_component_.time_zero_setup ();endtask
-  virtual task out_of_reset (truss::reset r); basic_test_component_.out_of_reset (r);endtask
-  virtual task write_to_hardware (); basic_test_component_.write_to_hardware ();endtask
-  virtual task wait_for_completion (); basic_test_component_.wait_for_completion ();endtask
-
-  //could do a random delay, but how about just making sure there is a constant amount of data flowing
+  //could do a random delay, but how about just making sure there is a ant amount of data flowing
   //could also have an initial generate burst
-  virtual protected task inter_generate_gap (); basic_test_component_.checker_.wait_actual_check ();endtask
-
-  virtual protected function void randomize2 (); basic_test_component_.randomize2 ();endfunction
-  virtual protected task wait_for_completion_ (); basic_test_component_.wait_for_completion_ ();endtask
-  virtual protected task start_components_ (); basic_test_component_.start_components_ ();endtask
-  virtual protected function void generate2 (); basic_test_component_.generate2 ();endfunction
-
-  uart_basic_test_component basic_test_component_;
- endclass
+   virtual protected task inter_generate_gap (); checker_.wait_actual_check (); endtask
+endclass
 `endif

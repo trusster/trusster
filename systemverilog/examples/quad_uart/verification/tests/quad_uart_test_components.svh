@@ -58,8 +58,8 @@ class quad_uart_test_components extends truss::test_base;
   local uart_basic_test_component uart_test_component_egress_[number_of_uarts];
 
 
-  extern local task standard_configuration (string name);
-  extern local task standard_generator (string name);
+  extern local function void standard_configuration (string name);
+  extern local function void standard_generator (string name);
 endclass
 
 `endif
