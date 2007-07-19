@@ -79,7 +79,7 @@ class uart_configuration;
 
     extern function new  (string n);
 
-    extern virtual task randomize2 ();
+    extern virtual function void randomize2 ();
 
     extern virtual function void report (string prefix);
     extern virtual function string sreport ();

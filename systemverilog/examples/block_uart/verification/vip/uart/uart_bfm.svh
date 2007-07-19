@@ -62,7 +62,7 @@ class uart_word;
     extern function string sreport ();
 	  
       
-    extern virtual task randomize2 (teal::uint8 min_delay, teal::uint8 max_delay, 
+    extern virtual function void randomize2 (teal::uint8 min_delay, teal::uint8 max_delay, 
 				    uart::data_type min_data, uart::data_type max_data);
 
   endclass
@@ -80,7 +80,7 @@ virtual class uart_bfm extends truss::verification_component;
   
     virtual task time_zero_setup ()     ; endtask
     virtual task out_of_reset (truss::reset r)   ; endtask
-    virtual task randomize2 ()           ; endtask
+    virtual function void randomize2 ()           ; endfunction
 
     extern virtual task write_to_hardware ();
     virtual task wait_for_completion () ; endtask

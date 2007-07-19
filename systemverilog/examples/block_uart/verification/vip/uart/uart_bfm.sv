@@ -73,7 +73,7 @@ endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-task uart_word::randomize2 (teal::uint8 min_delay, teal::uint8 max_delay, 
+function void uart_word::randomize2 (teal::uint8 min_delay, teal::uint8 max_delay, 
 			    uart::data_type min_data, uart::data_type max_data);
    teal::vout log_ = new ("uart_word:: randomize ()");
    data_min_ = min_data;
@@ -85,7 +85,7 @@ task uart_word::randomize2 (teal::uint8 min_delay, teal::uint8 max_delay,
    for (int i = data_size_; i < uart::max_uart_width; ++i) begin
       data[i] = 0;
    end
-endtask 
+endfunction
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -57,7 +57,7 @@ virtual class uart_16550_sfm extends truss::verification_component;
 
    task time_zero_setup (); endtask
    task out_of_reset (truss::reset r); endtask
-   task randomize2 (); endtask
+   function void randomize2 (); endfunction
    extern task start ();
    extern task write_to_hardware ();
 

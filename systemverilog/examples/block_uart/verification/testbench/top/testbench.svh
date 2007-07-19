@@ -71,7 +71,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   extern virtual task time_zero_setup ();
   extern virtual task out_of_reset (truss::reset r);
-  extern virtual task randomize2 ();
+  extern virtual function void randomize2 ();
   extern virtual task write_to_hardware ();
   extern virtual task start ();
   extern virtual task wait_for_completion ();

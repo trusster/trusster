@@ -143,7 +143,7 @@ task testbench::out_of_reset (truss::reset r);
    top_reset_.wb_rst_ir = 0;
 endtask
 
-task testbench::randomize2 ();  uart_configuration.randomize2 (); endtask
+function void testbench::randomize2 ();  uart_configuration.randomize2 (); endfunction
 task testbench::write_to_hardware (); endtask
 task testbench::start (); log_.info ("testbench starting"); endtask
 
