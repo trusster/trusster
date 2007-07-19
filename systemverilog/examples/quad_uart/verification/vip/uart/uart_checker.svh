@@ -48,24 +48,23 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 virtual class uart_checker extends truss::checker;
+   protected teal::vout log_;
+
+   local teal::latch done_;
+   local teal::uint32 word_count_;
+
    extern function new (string name);
 
    extern virtual task wait_for_completion ();
 
-   extern virtual task report (string prefix);
+   extern virtual function void report (string prefix);
 
    virtual task start (); fork start_ (); join_none endtask
       
    extern protected virtual task start_ ();
 
-   //pure
-   extern virtual task get_expected_ (output uart_block the_block);
-   extern virtual task get_actual_ (output uart_block the_block);
-   extern virtual task more_ (bit value);
-
-   protected teal::vout log_;
-
-   local teal::latch done_;
-   local teal::uint32 word_count_;
+   `PURE virtual task get_expected_ (output uart_block the_block);
+   `PURE virtual task get_actual_ (output uart_block the_block);
+   `PURE virtual task more_ (bit value);
 endclass
 `endif

@@ -48,7 +48,7 @@ endfunction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 task uart_bfm_agent::receive_completed_ (uart_word current_rx_word) ;
   uart_block current_rx = new (0);
-   log_.info ({" received word: ", current_rx_word.sreport ()});
+//   log_.info ({" received word: ", current_rx_word.sreport ()});
    current_rx.add_word (current_rx_word);
    received_from_wire_.put (current_rx);
 endtask
@@ -57,7 +57,7 @@ endtask
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 task uart_bfm_agent::do_tx_thread ();
-  for (;;) begin
+  forever begin
      uart_block current_tx;
      to_be_transmitted_.get (current_tx);
      log_.info ({"Block to be sent: ", current_tx.sreport ()});

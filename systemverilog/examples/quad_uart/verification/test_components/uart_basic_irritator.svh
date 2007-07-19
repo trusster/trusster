@@ -56,10 +56,10 @@ class uart_basic_irritator extends truss::irritator;
   //could also have an initial generate burst
   virtual protected task inter_generate_gap (); basic_test_component_.checker_.wait_actual_check ();endtask
 
-  virtual protected task randomize2 (); basic_test_component_.randomize2 ();endtask
+  virtual protected function void randomize2 (); basic_test_component_.randomize2 ();endfunction
   virtual protected task wait_for_completion_ (); basic_test_component_.wait_for_completion_ ();endtask
   virtual protected task start_components_ (); basic_test_component_.start_components_ ();endtask
-  virtual protected task generate2 (); basic_test_component_.generate2 ();endtask
+  virtual protected function void generate2 (); basic_test_component_.generate2 ();endfunction
 
   uart_basic_test_component basic_test_component_;
  endclass

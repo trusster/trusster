@@ -108,7 +108,7 @@ endtask
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   task testbench::randomize2 ();         log_.debug ( "randomize" );  endtask
+   function void testbench::randomize2 ();         log_.debug ( "randomize" );  endfunction
    task testbench::write_to_hardware (); log_.debug ( "write to hardware" );  endtask
    task testbench::wait_for_completion ();   log_.debug ( "wait for completion" );  endtask
    function void testbench::report ( string prefix);  log_.debug ({prefix, " report"});  endfunction

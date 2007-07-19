@@ -47,11 +47,11 @@ class quad_uart_test_components extends truss::test_base;
 
   extern virtual task time_zero_setup ();
   extern virtual task out_of_reset (truss::reset r);
-  extern virtual task randomize2 ();
+  extern virtual function void randomize2 ();
   extern virtual task write_to_hardware ();
   extern virtual task start ();
   extern virtual task wait_for_completion ();
-  extern virtual task report (string prefix);
+  extern virtual function void report (string prefix);
   
   local testbench testbench_;
   local uart_basic_test_component uart_test_component_ingress_[number_of_uarts];

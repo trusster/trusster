@@ -44,18 +44,26 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 virtual class uart_16550_sfm extends truss::verification_component;
+   local uart_configuration configuration_;
+   local virtual uart_16550_interface uart_16550_interface_;
+      
+   //valid after start
+   local teal::uint64 one_bit_; 
+   local teal::uint64 clock_frequency_;
+   local int index_;
+
    extern function new (string name, int index, virtual uart_16550_interface ui,
 			uart_configuration_16550 c, teal::uint64 clock_frequency);
 
 
    task time_zero_setup (); endtask
    task out_of_reset (truss::reset r); endtask
-   task randomize2 (); endtask
-   extern virtual task start ();
-   extern virtual task write_to_hardware ();
+   virtual function void  randomize2 (); endfunction
+   extern task start ();
+   extern task write_to_hardware ();
 
    task wait_for_completion (); endtask
-   task report (string prefix); endtask
+   function void report (string prefix); endfunction
 
    //These set the DUT wires accordingly, where true maps to active
    extern task dtr (bit new_value);
@@ -66,23 +74,13 @@ virtual class uart_16550_sfm extends truss::verification_component;
 
    extern task send (uart_block current_tx);
 
-   //pure
-   extern protected virtual task receive_completed_ (uart_block the_block);
-				 
-	 
+   `PURE protected virtual task receive_completed_ (uart_block the_block);
 
    extern local task do_receive_completed_ (uart_word the_word);
 
-   local uart_configuration configuration_;
-   local virtual uart_16550_interface uart_16550_interface_;
-   local int index_;
-      
-   //valid after start
-   local teal::uint64 one_bit_; 
-   local teal::uint64 clock_frequency_;
-
    extern task pause_ (teal::uint32 count);
    extern task do_rx_thread_ ();
+
    extern local function teal::uint32 bus_address_ (teal::uint32 offset);
 endclass
 `endif

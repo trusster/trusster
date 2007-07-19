@@ -104,7 +104,7 @@ if ($options{"hdl_compile"}){
       $create_mti_vlib = ("cd $RESULT_DIR; vlib work");
       truss_system ($create_mti_vlib); 
     }
-    $compile_hdl = ("cd $RESULT_DIR; vlog " . 
+    $compile_hdl = ("cd $RESULT_DIR; vlog  " . 
 		    ($options{"verbose"} ? "" : "-quiet -nologo ") .
 		    "-suppress 2167  +define+MTI -mfcu " .
 		    " +define+PURE=pure " .

@@ -43,6 +43,7 @@ function void shutdown::shutdown_now (string reason);
       log.local_print ("Shutdown called while shutting down! Panic exit.");
       $finish ();
    end
+  sentry = 1;
 
    `truss_assert (testbench_ != null);
    testbench_.report (reason);
@@ -52,7 +53,7 @@ function void shutdown::shutdown_now (string reason);
 
    `truss_assert (watchdog_ != null);
    watchdog_.report (reason);
-   
+
    if (log.how_many (teal::vout_error) == 0) begin
       log_.info ({"Test ", test_.name, " Passed."});
    end

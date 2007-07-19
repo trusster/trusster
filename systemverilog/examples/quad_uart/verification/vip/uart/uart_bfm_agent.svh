@@ -41,6 +41,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   ////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////
 class uart_block;
+   uart_word words_[$];
+   teal::uint32 block_delay_;
+   teal::vout log_;
+
    function new (teal::uint32 d); block_delay_ = d; log_ = new ("uart_bfm_agent, line 44"); log_.show_debug_level (99); endfunction
 
    task add_word (uart_word w); words_.push_back (w); endtask
@@ -50,13 +54,13 @@ class uart_block;
 
    function string sreport ();
       string msg;
-      int foo = $sformat (msg, "Block of %0d words. ", words_.size ());
+`ifdef fucme
+      msg = $psprintf ("Block of %0d words. ", words_.size ());
+      for (int i = 0; i < words_.size (); ++i) msg = {msg, " ", words_[i].sreport ()};
+`endif
       return msg;
    endfunction
       
-    uart_word words_[$];
-    teal::uint32 block_delay_;
-   teal::vout log_;
   endclass
 
 `include "uart_channel.svh"
@@ -65,15 +69,15 @@ class uart_block;
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //adds channel interface, interface is in blocks as opposed to words
 class uart_bfm_agent extends uart_bfm;
+    protected uart_channel to_be_transmitted_;
+    protected uart_channel received_from_wire_;
+
     extern function new (string name, virtual uart_interface ui, uart_configuration c, teal::uint64 clock_frequency,
 			 	 uart_channel to_be_transmitted,  uart_channel received_from_wire);
 
     extern virtual task start ();
 
     extern protected virtual task receive_completed_ (uart_word current_rx_word);
-
-    protected uart_channel to_be_transmitted_;
-    protected uart_channel received_from_wire_;
 
     extern local task do_tx_thread ();
 endclass

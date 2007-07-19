@@ -42,59 +42,61 @@
 `include "wishbone_driver.svh"
 `include "wishbone_memory_bank.svh"
 
+
 `define uart_registers_first  0
 `define uart_registers_last ((number_of_uarts - 1)<<4) + 7
 
 import truss::*;
 
+`include "interfaces_uart.svh"
 
 
-function testbench::new (string name);
-   super.new (name);
+function testbench::new (string name, truss::interfaces_dut dut_base);
+   interfaces_uart uart_dut;   
+   super.new (name, dut_base);
    log_.debug ("testbench new() begin ");
 
    begin
-      virtual uart_interface ui[number_of_uarts] = {interfaces_uart.uart_interface_0, interfaces_uart.uart_interface_1,
-						    interfaces_uart.uart_interface_2, interfaces_uart.uart_interface_3};
-      
-      virtual uart_16550_interface ui_16550[number_of_uarts] = {interfaces_uart.uart_16550_interface_0, interfaces_uart.uart_16550_interface_1,
-						    interfaces_uart.uart_16550_interface_2, interfaces_uart.uart_16550_interface_3};
-      
-      for (teal::uint32 i = 0; i < number_of_uarts; ++i) begin
-	 uart_group[i] = new (name, i, ui[i], ui_16550[i]);
-      end
+      int foo = $cast (uart_dut, dut_base);
+      assert (foo);
    end
 
+      for (int i = 0; i < number_of_uarts; ++i) begin
+	 uart_group[i] = new (name, i, uart_dut.uart_interface_[i], uart_dut.uart_16550_interface_[i]);
+      end
 
       //Now for the main chip register interface
-      wishbone_driver_ = new ("WB", interfaces_uart.wishbone_driver_interface_1);
+      wishbone_driver_ = new ("WB", uart_dut.wishbone_driver_interface_1);
       begin
 	 wishbone_memory_bank mb = new ("main_bus", wishbone_driver_);
 	 teal::add_memory_bank (mb);
 	 teal::add_map ("main_bus", `uart_registers_first, `uart_registers_last);
       end
 
+   top_reset_ = uart_dut.top_reset_;
 
       log_.debug ( "testbench new() done ");
    endfunction 
 
 
 task testbench::time_zero_setup ();
-   top.wb_rst_ir <= 1;
+   top_reset_.wb_rst_ir <= 0;
    #1;
 endtask
 
 task testbench::out_of_reset (truss::reset r);
-   top.wb_rst_ir <= 1;
-   wishbone_driver_.pause (10);
-   top.wb_rst_ir <= 0;
+   top_reset_.wb_rst_ir <= 1;
+   wishbone_driver_.pause (100);
+   top_reset_.wb_rst_ir <= 0;
 endtask
 
-task testbench::randomize2 ();  
+function void testbench::randomize2 ();  
+`ifdef funcme
   for (teal::uint32 i = 0; i < number_of_uarts; ++i) begin
         uart_group[i].uart_configuration.randomize2 ();
   end
-endtask
+`endif
+endfunction
 
 task testbench::write_to_hardware (); endtask
 task testbench::start (); log_.info ("testbench starting"); endtask
@@ -102,10 +104,12 @@ task testbench::start (); log_.info ("testbench starting"); endtask
 
 //no wait_for_completion, let the test/exercisors do that
 task testbench::wait_for_completion (); endtask
-task testbench::report (string prefix);  
+function void testbench::report (string prefix);  
+`ifdef funcme
   for (teal::uint32 i = 0; i < number_of_uarts; ++i) begin
         uart_group[i].uart_configuration.report (prefix);
   end
-endtask
+`endif
+endfunction
 
 

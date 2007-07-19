@@ -48,7 +48,7 @@ endfunction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 task uart_generator::send_block (teal::uint32 num_words, teal::uint32 block_delay);
    uart_block the_block;
-   uart::data_type max_data = ~0; //how to have arbitrary length? or pick up parameter ?
+   uart::data_type max_data = ~(~0 << configuration_.data_size_);
    
    
   `truss_assert (num_words);

@@ -34,11 +34,22 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `include "teal.svh"
 
+`ifdef MTI
+  `include "uart_16550_configuration.svh"
+  `include "uart_bfm.svh"
+  `include "uart_generator.svh"
+  `include "uart_checker.svh"
+  `include "uart_16550_sfm.svh"
+  `include "wishbone_driver.svh"
+
+`else
   typedef class uart_configuration_16550;
   typedef class uart_bfm;
   typedef class uart_generator;
   typedef class uart_checker;
   typedef class uart_16550_sfm;
+  typedef class wishbone_driver;
+`endif
 
 class uart_group ;
 	extern function new (string top, teal::uint32 index, virtual uart_interface ui, virtual uart_16550_interface ui_16550);

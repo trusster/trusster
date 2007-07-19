@@ -45,9 +45,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   task quad_uart_test_components::standard_configuration (string name) ;
     //add configuration default constraints
-    teal::dictionary_put ({name, "_min_baud"}, "4800",    teal::default_only);
-    teal::dictionary_put ({name, "_min_data_size"}, "5",  teal::default_only);
-    teal::dictionary_put ({name, "_max_data_size"}, "8", teal::default_only);
+    bit unused;
+	unused = teal::dictionary_put ({name, "_min_baud"}, "4800",    teal::default_only);
+    unused = teal::dictionary_put ({name, "_min_data_size"}, "5",  teal::default_only);
+    unused = teal::dictionary_put ({name, "_max_data_size"}, "8", teal::default_only);
   endtask
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +71,7 @@ function quad_uart_test_components::new (testbench tb, truss::watchdog w, string
   //now for the test components...
   for (teal::uint32 i = 0; i < number_of_uarts; ++i) begin
      string id;
-     int foo = $sformat (id, "%0d", i);
+     id = $psprintf ("%0d", i);
 
     uart_test_component_ingress_[i] = new  ({"uart_test_component_ingress ", id}, 
 					    testbench_.uart_group[i].uart_ingress_generator,  
@@ -97,7 +98,7 @@ endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-task quad_uart_test_components::randomize2 () ;endtask
+function void quad_uart_test_components::randomize2 () ;endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,10 +147,10 @@ endtask
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-task quad_uart_test_components::report (string prefix) ;
+function void quad_uart_test_components::report (string prefix) ;
   for (teal::uint32 i= 0; i < number_of_uarts; ++i) begin
     uart_test_component_ingress_[i].report (prefix); 
     uart_test_component_egress_[i].report (prefix);
   end
-endtask
+endfunction
   

@@ -57,7 +57,7 @@ virtual class uart_generator;
 
     string name;
 
-    extern protected virtual task send_block_ (uart_block the_block);
+    `PURE protected virtual task send_block_ (uart_block the_block);
     protected teal::vout log_;
 
     local teal::uint8 word_size_;

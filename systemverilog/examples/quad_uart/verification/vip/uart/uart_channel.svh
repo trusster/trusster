@@ -34,6 +34,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class uart_channel;
+   local uart_block storage_[$];
+   local teal::latch put_condition_;
+   local teal::latch get_condition_;
+   local bit[63:0] depth_;
+   local semaphore mutex_;
+   local uart_channel listners_[$];  //template on uart_block once classes can be templated
+   local teal::vout log_;
+
    function new  (string n, bit[63:0] d = 64'hFFFF_FFFF_FFFF_FFFF);
       put_condition_ = new ({n,  "_put_channel_condition"}, 1);
       get_condition_ = new ({n, "_get_channel_condition"}, 1);
@@ -52,7 +60,7 @@ class uart_channel;
       mutex_.get ();
       begin
 	 string msg;
-	 int foo = $sformat (msg, "put() : data is %s", d.sreport ()); 
+	 msg = $psprintf ("put() : data is %s", d.sreport ()); 
 	 log_.debug (msg);
       end
       storage_.push_back (d);
@@ -72,7 +80,7 @@ class uart_channel;
 	 bit [63:0] count_;
 	 int foo;
 	 count(count_);
-	 foo = $sformat (msg, "get() : count  is %0d", count_); 
+	 msg = $psprintf ("get() : count  is %0d", count_); 
 	 log_.debug (msg);
       end
 
@@ -85,7 +93,7 @@ class uart_channel;
 	    bit [63:0] count_; 
 	    int foo;
 	    count(count_);	    
-	    foo = $sformat (msg, "get() : after wait. count is %0d", count_); 
+	    msg = $psprintf ("get() : after wait. count is %0d", count_); 
 	    log_.debug (msg);
 	 end
 	 count(count_);
@@ -97,7 +105,7 @@ class uart_channel;
       mutex_.put ();
       begin
 	 string msg;
-	 int foo = $sformat (msg, "get() : data is %s", returned.sreport ());
+	 msg = $psprintf ("get() : data is %s", returned.sreport ());
 	 log_.debug (msg);
       end
       
@@ -116,17 +124,9 @@ class uart_channel;
    
    function string name (); return log_.name ();  endfunction
 
-   task add_listner (uart_channel new_one);
+   function void add_listner (uart_channel new_one);
       listners_.push_back (new_one);
-   endtask // add_listner
-
-   local uart_block storage_[$];
-   local teal::latch put_condition_;
-   local teal::latch get_condition_;
-   local bit[63:0] depth_;
-   local semaphore mutex_;
-   local uart_channel listners_[$];  //template on uart_block once classes can be templated
-   local teal::vout log_;
+   endfunction
 endclass
 
 

@@ -58,7 +58,7 @@ endfunction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 task uart_16550_sfm::do_rx_thread_ ();
-   for (;;) begin
+   forever begin
       uart_word current_rx = new (configuration_.data_size_,0);
       teal::uint8 data;
       string msg;
@@ -71,7 +71,7 @@ task uart_16550_sfm::do_rx_thread_ ();
 
       //DO status part
       teal::read  (bus_address_ (`UART_VERIF_REG_II), data, 8);
-      foo = $sformat (msg, " Interrupt Identification: 0x%0x", data);
+      msg = $psprintf (" Interrupt Identification: 0x%0x", data);
       log_.debug (msg);
       
 
@@ -135,7 +135,7 @@ task uart_16550_sfm::write_to_hardware ();
    one_bit_ = (clock_frequency_ + configuration_.baud_rate_ - 1) / configuration_.baud_rate_;
    begin
       string msg;
-      int foo = $sformat (msg, "divisor %0d clock_frequency_ %0d configuration_.baud_rate_ %0d", divisor, clock_frequency_, configuration_.baud_rate_);
+      msg = $psprintf ("divisor %0d clock_frequency_ %0d configuration_.baud_rate_ %0d", divisor, clock_frequency_, configuration_.baud_rate_);
       log_.debug (msg);
    end
    `truss_assert (one_bit_); //otherwise there is not enough clock resolution

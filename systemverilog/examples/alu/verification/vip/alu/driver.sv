@@ -57,7 +57,7 @@ task alu_driver::time_zero_setup ();                       log_.debug (" time_ze
 task alu_driver::out_of_reset (truss::reset r);                     log_.debug (" out of reset"); endtask
 task alu_driver::start ();                                 log_.debug (" start "); endtask
 task alu_driver::stop ();                                  log_.debug (" stop"); endtask
-task alu_driver::randomize2 ();                             log_.debug (" randomize"); endtask
+function void alu_driver::randomize2 ();                             log_.debug (" randomize"); endfunction
 task alu_driver::write_to_hardware ();                     log_.debug (" write to hardware"); endtask
 task alu_driver::wait_for_completion ();                   log_.debug (" wait_for_completion"); endtask
 function void alu_driver::report (string prefix);          log_.debug ({prefix, " report"}); endfunction

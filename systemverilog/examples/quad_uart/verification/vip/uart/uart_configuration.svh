@@ -59,8 +59,6 @@ endpackage
   ////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////
 class uart_configuration;
-    extern function new  (string n);
-
     /*rand*/ uart::parity parity_;
 
     /*rand*/ uart::baud_rate baud_rate_;
@@ -75,14 +73,16 @@ class uart_configuration;
 
     uart::equipment equipment_;
 
-    extern virtual task randomize2 ();
-
-    extern virtual task report (string prefix);
-    extern virtual function string sreport ();
-
     string name;
        
     protected teal::vout log_;
+
+    extern function new  (string n);
+
+    extern virtual function void randomize2 ();
+
+    extern virtual function void report (string prefix);
+    extern virtual function string sreport ();
   endclass
 
 `endif

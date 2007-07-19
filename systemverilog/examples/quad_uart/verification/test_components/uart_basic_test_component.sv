@@ -41,12 +41,15 @@ function uart_basic_test_component::new (string n, uart_generator g, truss::veri
    bfm_ = b;
    checker_ = c;
 
-  `truss_assert (g);
-  `truss_assert (b);
-  `truss_assert (c);
+  `truss_assert (g != null);
+  `truss_assert (b != null);
+  `truss_assert (c != null);
   //add test_component defaults
-  teal::dictionary_put ({generator_.name, "_min_word_delay"}, "0", teal::replace_entry);
-  teal::dictionary_put ({generator_.name, "_max_word_delay"}, "3", teal::replace_entry);
+begin 
+bit unused;
+unused = teal::dictionary_put ({generator_.name, "_min_word_delay"}, "0", teal::replace_entry);
+unused = teal::dictionary_put ({generator_.name, "_max_word_delay"}, "3", teal::replace_entry);
+end
 //   log_.show_debug_level (99);
 endfunction
 
@@ -55,7 +58,8 @@ endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-task uart_basic_test_component::randomize2 ();
+function void uart_basic_test_component::randomize2 ();
+`ifdef funcme
    string msg;
    int foo;
    min_word_count_ = teal::dictionary_find_integer ({log_.name (), "_min_num_words"}, 2);
@@ -65,9 +69,10 @@ task uart_basic_test_component::randomize2 ();
    
    log_.debug (" Randomize: begin");
    `truss_assert (randomize ());
-   foo = $sformat (msg, " Randomize done. block_size: %0d block_delay: %0d", word_count_, block_delay_);
+   msg = $psprintf (" Randomize done. block_size: %0d block_delay: %0d", word_count_, block_delay_);
    log_.debug (msg);
-endtask
+`endif
+endfunction
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

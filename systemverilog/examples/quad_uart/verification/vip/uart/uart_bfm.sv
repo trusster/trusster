@@ -48,7 +48,6 @@ function uart_word::new (teal::uint8 data_size, teal::uint8 bit_delay);
    for (int i = data_size_; i < uart::max_uart_width; ++i) begin
       data[i] = 0;
    end
-   
 endfunction
 
 
@@ -66,15 +65,19 @@ endfunction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function string uart_word::sreport ();
+
    string msg;
-   int foo = $sformat (msg, "delay of %0d status: %0d 0x%x", bit_start_delay, status_, data);
+`ifdef fucme
+   msg = $psprintf ("delay of %0d status: %0d 0x%x", bit_start_delay, status_, data);
+`endif
    return msg;
 endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-task uart_word::randomize2 (teal::uint8 min_delay, teal::uint8 max_delay, 
+function void uart_word::randomize2 (teal::uint8 min_delay, teal::uint8 max_delay, 
 			    uart::data_type min_data, uart::data_type max_data);
+`ifdef fucme
    teal::vout log_ = new ("uart_word:: randomize ()");
    data_min_ = min_data;
    data_max_ = max_data;
@@ -85,7 +88,8 @@ task uart_word::randomize2 (teal::uint8 min_delay, teal::uint8 max_delay,
    for (int i = data_size_; i < uart::max_uart_width; ++i) begin
       data[i] = 0;
    end
-endtask 
+`endif
+endfunction 
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +138,7 @@ task uart_bfm::do_rx_thread ();
    bit current_bit;
    
 
-   for (;;) begin
+   forever begin
       //dtr/dsr on word boundry only
       if (configuration_.equipment_ == uart::data_communications_equipment) begin
 	 while ( (configuration_.use_dtr_dsr_) && (port_.dsr == 0)) begin
@@ -147,7 +151,7 @@ task uart_bfm::do_rx_thread ();
 	 end
       end
       
-`define slimy_way 1     
+//`define slimy_way 1     
 `ifdef slimy_way
       current_bit = port_.rx;
       while (current_bit != 0) begin
@@ -188,7 +192,7 @@ task uart_bfm::do_rx_thread ();
 	    current_rx.data [i] = port_.rx;
 	    begin
 	       string msg;
-	       int foo = $sformat (msg, "receive bit %0d is %0d", i, port_.rx);
+	       msg = $psprintf ("receive bit %0d is %0d", i, port_.rx);
 	       log_.debug (msg);
 	    end
 	 end
@@ -213,6 +217,8 @@ task uart_bfm::do_rx_thread ();
 	 endcase 
 	 
 	 //check that it is still a stop bit
+	 log_.debug ($psprintf ("sample point: receiving stop bit %0d", port_.rx));
+
 	 if (port_.rx != 1) begin
 	    current_rx.status_ |= uart::stop_bit_mismatch;	
 	 end 
@@ -220,7 +226,7 @@ task uart_bfm::do_rx_thread ();
 	 pause_ (one_half_bit_ -1); //complete the stop bit
 	 begin
 	    string msg;
-	    int foo = $sformat (msg, "done receiving stop bit %0d", port_.rx);
+	    msg = $psprintf ("done receiving stop bit %0d", port_.rx);
 	    log_.debug (msg);
 	 end
 	 log_.debug ({"Completed receive: " , current_rx.sreport ()});
@@ -280,7 +286,7 @@ task uart_bfm::send_word (uart_word current_tx);
       port_.tx <= current_tx.data[i];
       begin
 	 string msg;
-	 int foo = $sformat (msg, "sending bit %0d %0d", i, current_tx.data[i]);
+	 msg = $psprintf ("sending bit %0d %0d", i, current_tx.data[i]);
 	 log_.debug (msg);
       end
       pause_ (one_bit_);
@@ -341,8 +347,8 @@ task uart_bfm::start () ;
    one_bit_ = (clock_frequency_ + configuration_.baud_rate_ - 1) / configuration_.baud_rate_;
    begin
       string msg;
-      int foo = $sformat (msg, "one bit is %0d", one_bit_);
-      log_.debug (msg);
+      msg = $psprintf ("one bit is %0d", one_bit_);
+      log_.info (msg);
    end
    one_half_bit_ = one_bit_ / 2; //otherwise there is not enough clock resolution
    `truss_assert (one_half_bit_);

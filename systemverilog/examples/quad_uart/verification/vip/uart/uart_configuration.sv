@@ -78,7 +78,7 @@ endfunction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    function string sreport_integer (integer d);
       string msg;
-      int foo = $sformat (msg, "%0d", d);
+      msg = $psprintf ("%0d", d);
       return msg;
 endfunction
 
@@ -111,38 +111,6 @@ endclass // __uart_utility
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class __uart_configuration_chooser;
-   function new (string n);
-      log_ = new (n);
-      
-      min_baud_rate = baud_rate' (teal::dictionary_find_integer ({n, "_min_baud"}, 150));
-      max_baud_rate = baud_rate' (teal::dictionary_find_integer ({n, "_max_baud"}, 921600));
-      min_parity = parity' (teal::dictionary_find_integer ({n, "_min_parity"}, 0));
-      max_parity = parity' (teal::dictionary_find_integer ({n, "_max_parity"}, 4));
-      min_data_size = data_size' (teal::dictionary_find_integer ({n, "_min_data_size"}, 2));
-      max_data_size = data_size' (teal::dictionary_find_integer ({n, "_max_data_size"}, 4));
-      min_stop_bits = stop_bits' (teal::dictionary_find_integer ({n, "_min_stop_bits"}, 0));
-      max_stop_bits = stop_bits' (teal::dictionary_find_integer ({n, "_max_stop_bits"}, 4));
-      use_dtr_dsr_probability = teal::dictionary_find_integer ({n, "use_dtr_dsr_probability"}, 0);
-      use_cts_rts_probability = teal::dictionary_find_integer ({n, "use_cts_rts_probability"}, 0);
-   endfunction // new
-
-   function string sreport ();
-      string msg1;
-      string msg2;
-      string msg3;
-      string msg4;
-      string msg5;
-      string msg6;
-      int foo;
-      foo = $sformat (msg1, "Generate baud from [%0d ... %0d]", min_baud_rate,  max_baud_rate);
-      foo = $sformat (msg2, "Generate parity from [%0d ... %0d]", min_parity,  max_parity);
-      foo = $sformat (msg3, "Generate data_size from [%0d ... %0d]", min_data_size,  max_data_size);
-      foo = $sformat (msg4, "Generate stop_bits from [%0d ... %0d]", min_stop_bits,  max_stop_bits);
-      foo = $sformat (msg5, "Generate use_dtr_dsr_probability is %0d", use_dtr_dsr_probability);
-      foo = $sformat (msg6, "Generate use_cts_rts_probability is %0d", use_cts_rts_probability);
-      return {msg1,msg2, msg3, msg4, msg5, msg6};
-   endfunction // string
-   
    rand stop_bits stop_bits_;
    local stop_bits min_stop_bits;
    local stop_bits max_stop_bits;
@@ -174,12 +142,47 @@ class __uart_configuration_chooser;
    local rand teal::uint8 use_cts_rts_probability_now;
    constraint use_cts_rts_probability_valid {use_cts_rts_probability_now >= 0; use_cts_rts_probability_now <= 100;}
    
+   local teal::vout log_;
+
+   function new (string n);
+      log_ = new (n);
+      
+      min_baud_rate = baud_rate' (teal::dictionary_find_integer ({n, "_min_baud"}, 150));
+      max_baud_rate = baud_rate' (teal::dictionary_find_integer ({n, "_max_baud"}, 921600));
+      min_parity = parity' (teal::dictionary_find_integer ({n, "_min_parity"}, 0));
+      max_parity = parity' (teal::dictionary_find_integer ({n, "_max_parity"}, 4));
+      min_data_size = data_size' (teal::dictionary_find_integer ({n, "_min_data_size"}, 2));
+      max_data_size = data_size' (teal::dictionary_find_integer ({n, "_max_data_size"}, 4));
+      min_stop_bits = stop_bits' (teal::dictionary_find_integer ({n, "_min_stop_bits"}, 0));
+      max_stop_bits = stop_bits' (teal::dictionary_find_integer ({n, "_max_stop_bits"}, 4));
+      use_dtr_dsr_probability = teal::dictionary_find_integer ({n, "use_dtr_dsr_probability"}, 0);
+      use_cts_rts_probability = teal::dictionary_find_integer ({n, "use_cts_rts_probability"}, 0);
+   endfunction // new
+
+   function string sreport ();
+`ifdef fucme
+      string msg1;
+      string msg2;
+      string msg3;
+      string msg4;
+      string msg5;
+      string msg6;
+      int foo;
+      msg1 = $psprintf ("Generate baud from [%0d ... %0d]", min_baud_rate,  max_baud_rate);
+      msg2 = $psprintf ("Generate parity from [%0d ... %0d]", min_parity,  max_parity);
+      msg3 = $psprintf ("Generate data_size from [%0d ... %0d]", min_data_size,  max_data_size);
+      msg4 = $psprintf ("Generate stop_bits from [%0d ... %0d]", min_stop_bits,  max_stop_bits);
+      msg5 = $psprintf ("Generate use_dtr_dsr_probability is %0d", use_dtr_dsr_probability);
+      msg6 = $psprintf ("Generate use_cts_rts_probability is %0d", use_cts_rts_probability);
+      return {msg1,msg2, msg3, msg4, msg5, msg6};
+`endif
+   endfunction // string
+   
    function void post_randomize ();
       use_dtr_dsr_ = (use_dtr_dsr_probability_now < use_dtr_dsr_probability);
       use_cts_rts_ = (use_cts_rts_probability_now < use_cts_rts_probability);
       log_.info ({"post_randomize: ", sreport ()});
    endfunction // void
-   local teal::vout log_;
    
 endclass // uart_configuration_chooser
 
@@ -199,7 +202,7 @@ endfunction // new
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-task uart_configuration::randomize2 ();
+function void uart_configuration::randomize2 ();
    __uart_configuration_chooser chooser = new (log_.name ());
    `truss_assert (chooser.randomize ());
    baud_rate_ = chooser.baud_rate_;
@@ -209,13 +212,13 @@ task uart_configuration::randomize2 ();
    use_dtr_dsr_ = chooser.use_dtr_dsr_;
    use_cts_rts_ = chooser.use_cts_rts_;
    report ("After Randomize:");
-endtask
+endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-task uart_configuration::report (string prefix);
+function void uart_configuration::report (string prefix);
    log_.info ({prefix, sreport ()});
-endtask
+endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

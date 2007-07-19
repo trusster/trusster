@@ -39,8 +39,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class wishbone_driver;
   extern function new (string n, virtual wishbone_driver_interface p);
 
-  extern virtual task from_memory (bit [63:0] address, inout bit [MAX_DATA - 1:0] returned, input teal::uint32 size);
-  extern virtual task to_memory (bit [63:0] address,  input bit [MAX_DATA - 1:0]  value, teal::uint32 size);
+  extern virtual task from_memory (bit [63:0] address, inout bit [teal::MAX_DATA - 1:0] returned, input teal::uint32 size);
+  extern virtual task to_memory (bit [63:0] address,  input bit [teal::MAX_DATA - 1:0]  value, teal::uint32 size);
 
   extern task pause (teal::uint32 count);     
 

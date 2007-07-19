@@ -54,7 +54,7 @@ task uart_checker::start_ ();
    int foo;
    
 
-  for (;;) begin
+  forever begin
     if (current_rx_index == current_rx_block.size ()) begin
       get_actual_ (current_rx_block);
        current_rx_index = 0;
@@ -66,7 +66,7 @@ task uart_checker::start_ ();
 
     ++word_count_;
 
-     foo = $sformat (msg, " Checking word %0d on expected block %0d actual: word[%0d] %s expected:  word %0d [%0d] %s", word_count_,
+     msg = $psprintf (" Checking word %0d on actual block %0d actual: word[%0d] %s expected:  word %0d [%0d] %s", word_count_,
 		     actual_check_count_, current_tx_index, current_tx_block.words_[current_tx_index].sreport(),
 		     expected_check_count_, current_rx_index, current_rx_block.words_[current_rx_index].sreport ());
      		    
@@ -93,11 +93,13 @@ endtask
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-task uart_checker::report (string prefix);
+function void uart_checker::report (string prefix);
+`ifdef fucme
   string msg;
-  int foo = $sformat (msg, "%s Number of words checked: %0d", prefix, word_count_);
+  msg = $psprintf ("%s Number of words checked: %0d", prefix, word_count_);
   log_.info (msg);
-endtask
+`endif
+endfunction
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

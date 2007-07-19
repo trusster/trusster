@@ -37,6 +37,6 @@ function uart_generator_agent::new (string n,  uart_configuration c, uart_channe
 endfunction // uart_generator_agent
 
 task  uart_generator_agent::send_block_ (uart_block the_block);
-  log_.info ("Sending  block now.");
+  log_.info ({"Sending  block now.", the_block.sreport()});
   out_.put (the_block);
 endtask

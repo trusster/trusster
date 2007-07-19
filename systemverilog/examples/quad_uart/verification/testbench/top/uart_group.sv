@@ -44,8 +44,7 @@ parameter teal::uint64 UART_CLOCK_FREQUENCY =  29489826; //29.4Mhz
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function uart_group::new (string top, teal::uint32 index, virtual uart_interface ui, virtual uart_16550_interface ui_16550);
-   string id_str;
-   int foo = $sformat (id_str, "%0d", index);
+   string id_str = $psprintf ("%0d", index);
    
       //build the channels of the bi-directional interface
       uart_channel program_egress = new  ({"program egress", id_str});

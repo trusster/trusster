@@ -42,45 +42,49 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   ////////////////////////////////////////////////////////////////////////////
   //character gap, match char, force xon/off tx, remove xon/off in higher level channel
 class uart_word;
-    extern function new (teal::uint8 data_size, teal::uint8 bit_delay);
+    int status_;  //if non-zero, data may be invalid
 
-    teal::uint32 status_;  //if non-zero, data may be invalid
+    uart::data_type data_min_;
+    uart::data_type data_max_;
+    rand uart::data_type data;
+    constraint data_valid { data >= data_min_; data <= data_max_;}
+
+    local teal::uint8 bit_start_delay_min_;
+    local teal::uint8 bit_start_delay_max_;
+    rand teal::uint8 bit_start_delay; //how many bit times to delay
+   constraint bit_start_delay_valid { bit_start_delay >= bit_start_delay_min_; bit_start_delay <= bit_start_delay_max_;}
+
+    teal::uint8 data_size_;
+
+    extern function new (teal::uint8 data_size, teal::uint8 bit_delay);
 
     extern function bit equal (uart_word w);
     extern function string sreport ();
 	  
       
-    rand teal::uint8 bit_start_delay; //how many bit times to delay
-    rand uart::data_type data;
-
-    extern virtual task randomize2 (teal::uint8 min_delay, teal::uint8 max_delay, 
+    extern virtual function void randomize2 (teal::uint8 min_delay, teal::uint8 max_delay, 
 				    uart::data_type min_data, uart::data_type max_data);
 
-
-    uart::data_type data_min_;
-    uart::data_type data_max_;
-    constraint data_valid { data >= data_min_; data <= data_max_;}
-
-    local teal::uint8 bit_start_delay_min_;
-    local teal::uint8 bit_start_delay_max_;
-    constraint bit_start_delay_valid { bit_start_delay >= bit_start_delay_min_; bit_start_delay <= bit_start_delay_max_;}
-
-    teal::uint8 data_size_;
   endclass
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 virtual class uart_bfm extends truss::verification_component;
+    //valid after start
+    protected teal::uint32 one_bit_; 
+    protected teal::uint32 one_half_bit_; 
+    protected teal::uint64 clock_frequency_;
+
     extern function new (string name, virtual uart_interface ui, uart_configuration c, teal::uint64 clock_frequency);
   
     virtual task time_zero_setup ()     ; endtask
     virtual task out_of_reset (truss::reset r)   ; endtask
-    virtual task randomize2 ()           ; endtask
+    virtual function void randomize2 ()           ; endfunction
 
     extern virtual task write_to_hardware ();
     virtual task wait_for_completion () ; endtask
-    virtual task report (string prefix) ; endtask
+    virtual function void report (string prefix) ; endfunction
 
     extern virtual task send_word (uart_word current_tx);
 
@@ -93,18 +97,12 @@ virtual class uart_bfm extends truss::verification_component;
 
     extern virtual task start ();
 
-    //pure
-    extern protected virtual task receive_completed_ (uart_word w);
+    `PURE protected virtual task receive_completed_ (uart_word current_rx_word);
 
     protected uart_configuration configuration_;
       
     protected virtual uart_interface port_;
       
-    //valid after start
-    protected teal::uint32 one_bit_; 
-    protected teal::uint32 one_half_bit_; 
-    protected teal::uint64 clock_frequency_;
-
     extern protected virtual task pause_ (teal::uint32 count);
 
     extern protected task do_rx_thread ();
