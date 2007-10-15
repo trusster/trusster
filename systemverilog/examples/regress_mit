@@ -1,0 +1,11 @@
+export PROJECT_HOME=$PWD/alu;
+truss --test alu_test --sim mti;
+export PROJECT_HOME=$PWD/block_uart;
+truss --test block_uart --sim mti;
+export PROJECT_HOME=$PWD/quad_uart;
+truss --test block_uart --sim mti;
+truss --test quad_uart_test_components --sim mti;
+truss --test quad_uart_vectors --sim mti;
+
+
+
