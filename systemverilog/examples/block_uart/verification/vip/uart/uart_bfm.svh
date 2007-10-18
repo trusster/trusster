@@ -36,6 +36,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `include "uart_configuration.svh"
 
+`include "interfaces_uart.svh"
+
 
 
   ////////////////////////////////////////////////////////////////////////////

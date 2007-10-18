@@ -62,7 +62,7 @@ function testbench::new (string name, truss::interfaces_dut dut_base);
    end
 
       for (int i = 0; i < number_of_uarts; ++i) begin
-	 uart_group[i] = new (name, i, uart_dut.uart_interface_[i], uart_dut.uart_16550_interface_[i]);
+	 a_uart_group[i] = new (name, i, uart_dut.uart_interface_[i], uart_dut.uart_16550_interface_[i]);
       end
 
       //Now for the main chip register interface
@@ -92,7 +92,7 @@ endtask
 
 function void testbench::randomize2 ();  
   for (teal::uint32 i = 0; i < number_of_uarts; ++i) begin
-        uart_group[i].uart_configuration.randomize2 ();
+        a_uart_group[i].uart_configuration.randomize2 ();
   end
 endfunction
 
@@ -104,7 +104,7 @@ task testbench::start (); log_.info ("testbench starting"); endtask
 task testbench::wait_for_completion (); endtask
 function void testbench::report (string prefix);  
   for (teal::uint32 i = 0; i < number_of_uarts; ++i) begin
-        uart_group[i].uart_configuration.report (prefix);
+        a_uart_group[i].uart_configuration.report (prefix);
   end
 endfunction
 

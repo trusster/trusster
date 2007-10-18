@@ -32,6 +32,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 `ifndef __interfaces_alu__
  `define __interfaces_alu__
 
+`include "truss.svh"
+
 interface alu_input (
     output reg  [31:0] operand_a,
     output reg  [31:0] operand_b, 

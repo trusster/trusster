@@ -32,6 +32,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 `ifndef __interfaces_alu__
  `define __interfaces_alu__
 
+`include "truss.svh"
+
 interface uart_interface (
     output reg dtr,
     output reg     dsr,

@@ -86,21 +86,21 @@ function void block_uart::randomize2 ();
       id = $psprintf ("%0d", uart_index);
 
       uart_test_component_ingress_ = new  ({"uart_test_component_ingress ", id}, 
-						       testbench_.uart_group[uart_index].uart_ingress_generator,  
-						       testbench_.uart_group[uart_index].uart_program_sfm, 
-						       testbench_.uart_group[uart_index].uart_ingress_checker);
-      standard_generator (testbench_.uart_group[uart_index].uart_ingress_generator.name );
+						       testbench_.a_uart_group[uart_index].uart_ingress_generator,  
+						       testbench_.a_uart_group[uart_index].uart_program_sfm, 
+						       testbench_.a_uart_group[uart_index].uart_ingress_checker);
+      standard_generator (testbench_.a_uart_group[uart_index].uart_ingress_generator.name );
       uart_test_component_ingress_.randomize2 ();
 
 
       uart_test_component_egress_ = new  ({"uart_test_component_egress ", id}, 
-						      testbench_.uart_group[uart_index].uart_egress_generator, 
-						      testbench_.uart_group[uart_index].uart_protocol_bfm, 
-						      testbench_.uart_group[uart_index].uart_egress_checker);
-      standard_generator (testbench_.uart_group[uart_index].uart_egress_generator.name );
+						      testbench_.a_uart_group[uart_index].uart_egress_generator, 
+						      testbench_.a_uart_group[uart_index].uart_protocol_bfm, 
+						      testbench_.a_uart_group[uart_index].uart_egress_checker);
+      standard_generator (testbench_.a_uart_group[uart_index].uart_egress_generator.name );
       uart_test_component_egress_.randomize2 ();
 
-      standard_configuration (testbench_.uart_group[uart_index].uart_configuration.name);
+      standard_configuration (testbench_.a_uart_group[uart_index].uart_configuration.name);
    end
 endfunction
 

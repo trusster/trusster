@@ -74,21 +74,21 @@ function quad_uart_test_components::new (testbench tb, truss::watchdog w, string
      id = $psprintf ("%0d", i);
 
     uart_test_component_ingress_[i] = new  ({"uart_test_component_ingress ", id}, 
-					    testbench_.uart_group[i].uart_ingress_generator,  
-					    testbench_.uart_group[i].uart_program_sfm, 
-					    testbench_.uart_group[i].uart_ingress_checker);
-    standard_generator (testbench_.uart_group[i].uart_ingress_generator.name );
+					    testbench_.a_uart_group[i].uart_ingress_generator,  
+					    testbench_.a_uart_group[i].uart_program_sfm, 
+					    testbench_.a_uart_group[i].uart_ingress_checker);
+    standard_generator (testbench_.a_uart_group[i].uart_ingress_generator.name );
     uart_test_component_ingress_[i].randomize2 ();
 
 
     uart_test_component_egress_[i] = new  ({"uart_test_component_egress ", id}, 
-					   testbench_.uart_group[i].uart_egress_generator, 
-					   testbench_.uart_group[i].uart_protocol_bfm, 
-					   testbench_.uart_group[i].uart_egress_checker);
-    standard_generator (testbench_.uart_group[i].uart_egress_generator.name );
+					   testbench_.a_uart_group[i].uart_egress_generator, 
+					   testbench_.a_uart_group[i].uart_protocol_bfm, 
+					   testbench_.a_uart_group[i].uart_egress_checker);
+    standard_generator (testbench_.a_uart_group[i].uart_egress_generator.name );
     uart_test_component_egress_[i].randomize2 ();
 
-    standard_configuration (testbench_.uart_group[i].uart_configuration.name);
+    standard_configuration (testbench_.a_uart_group[i].uart_configuration.name);
   end
 
   log_.info ("quad_uart_test_components::new() end ");

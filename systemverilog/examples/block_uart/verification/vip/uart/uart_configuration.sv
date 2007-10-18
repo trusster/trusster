@@ -154,7 +154,7 @@ class __uart_configuration_chooser;
       min_data_size = data_size' (teal::dictionary_find_integer ({n, "_min_data_size"}, 2));
       max_data_size = data_size' (teal::dictionary_find_integer ({n, "_max_data_size"}, 4));
       min_stop_bits = stop_bits' (teal::dictionary_find_integer ({n, "_min_stop_bits"}, 0));
-      max_stop_bits = stop_bits' (teal::dictionary_find_integer ({n, "_max_stop_bits"}, 4));
+      max_stop_bits = stop_bits' (teal::dictionary_find_integer ({n, "_max_stop_bits"}, 2));
       use_dtr_dsr_probability = teal::dictionary_find_integer ({n, "use_dtr_dsr_probability"}, 0);
       use_cts_rts_probability = teal::dictionary_find_integer ({n, "use_cts_rts_probability"}, 0);
    endfunction // new
