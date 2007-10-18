@@ -194,7 +194,7 @@ int teal::random_range::draw (int32 low, int32 up)
 
   int32 lower ((low < up) ? low : up);
   int32 upper ((low < up) ? up : low);
-  int32 delta (up - low + 1);
+  int32 delta (upper - lower + 1);
   int32 returned = (int32) (lower + (vrandom::draw () * (double)delta));
   if (returned > upper) {
     returned = upper;

@@ -99,11 +99,11 @@ class file_vlog  extends vlog;
 	extern function new (string functional_area, integer initial_show_level = no_debug);
         extern function string name ();
 
-	extern function void info (string message);
-	extern function void  error (string message);
-	extern function void  fatal (string message);
-	extern function void  debug (string message);
-	extern function void  debug_n (integer level, string message);
+	extern function void info (string msg);
+	extern function void  error (string msg);
+	extern function void  fatal (string msg);
+	extern function void  debug (string msg);
+	extern function void  debug_n (integer level, string msg);
 
 	extern function integer show_debug_level (integer new_one);
 
@@ -111,7 +111,7 @@ class file_vlog  extends vlog;
 	//nominally the enum info_type, but left as int for expansion
 	//The first way to not print some bit of meta data.
       extern  virtual function /*previous*/ bit message_display (integer id, bit new_value);
-	 extern protected function void put_line_ (integer id, string value, string message, integer level);
+	 extern protected function void put_line_ (integer id, string value, string msg, integer level);
 	    
 
 

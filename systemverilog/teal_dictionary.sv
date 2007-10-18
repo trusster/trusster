@@ -38,7 +38,9 @@ $display ({"Process file: ", path});
 
 	unused = $fscanf (file_id, "%s", param);
 	if (param.len ()) begin
+`ifndef AXIOM
 	   c = $fgetc (file_id);  //eat the space between symbol and value
+`endif
 	   unused = $fgets (value, file_id);
 	   value = value.substr (0, value.len() - 2);
 	end
