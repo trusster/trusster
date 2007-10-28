@@ -57,11 +57,15 @@ interface top_reset (
 
 interface watchdog_interface (
    input reg hdl_timeout_,
+`ifdef ATHDL_SIM
+    input reg [`COUNTER_WIDTH-1:0] hdl_timeout_count_
+`else
 `ifdef MTI
    output reg [`COUNTER_WIDTH-1:0] hdl_timeout_count_
 `else
    output reg [COUNTER_WIDTH-1:0] hdl_timeout_count_
-`endif			      
+`endif
+`endif
   );
 endinterface
 

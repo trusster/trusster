@@ -138,6 +138,8 @@ sub check_env{
   }
   elsif($options{"simulator"} eq "IVL"){
   }
+  elsif($options{"simulator"} eq "ATSIM"){
+  }
   else{
     print "\nUnsupported simulator ", $options{"simulator"}, " detected. Simulators supported are $SUPPORTED_SIMULATORS";
     ++$env_err;

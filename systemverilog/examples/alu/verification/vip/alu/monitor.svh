@@ -51,7 +51,11 @@ virtual class run_loop;
    task start ();
       fork begin
 	 bit go_on = 1;
+`ifdef ATHDL_SIM
+	for(;;) begin
+`else
 	 for (int dummy=0;go_on; dummy=dummy) begin
+`endif
 	    loop_condition_ ();
 	    loop_body_ (go_on);
 	 end 

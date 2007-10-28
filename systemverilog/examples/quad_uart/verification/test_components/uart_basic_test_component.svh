@@ -45,6 +45,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //see uart::basic_irretator for an infinate run irretator form
 
 class uart_basic_test_component extends truss::test_component;
+    protected truss::verification_component       bfm_; 
+
    extern function new (string n, uart_generator g, truss::verification_component b, uart_checker c);
 
     extern virtual function void randomize2 ();
@@ -60,7 +62,6 @@ class uart_basic_test_component extends truss::test_component;
     extern virtual protected task  start_components_ ();
 
     protected uart_generator                      generator_;
-    protected truss::verification_component       bfm_; 
      uart_checker                        checker_;
 
 

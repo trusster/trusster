@@ -55,7 +55,7 @@ function void shutdown::shutdown_now (string reason);
    watchdog_.report (reason);
 
    if (log.how_many (teal::vout_error) == 0) begin
-      log_.info ({"Test ", test_.name, " Passed."});
+      log_.info ({"Test ", test_.name(), " Passed."});
    end
    else begin
       string msg = $psprintf ("Test %s Failed. Contained %0d errors.", test_.name(), log.how_many (teal::vout_error));
