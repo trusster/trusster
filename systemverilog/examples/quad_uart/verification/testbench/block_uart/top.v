@@ -221,11 +221,3 @@ module top;
 endmodule 
 
 
-module dumper;
-   initial begin
-      
-      $vcdpluson(0,top);
-//      $vcdpluson(0,truss::verification_top);
-      $vcdpluson(0, interfaces_uart);
-      end
-   endmodule

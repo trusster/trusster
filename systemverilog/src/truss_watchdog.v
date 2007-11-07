@@ -1,9 +1,13 @@
 `timescale 1ns / 1ns
 
+`ifdef ATHDL_SIM
+`define COUNTER_WIDTH 64
+`else
 `ifdef MTI
 `define COUNTER_WIDTH 64
 `else
 parameter COUNTER_WIDTH        = 64;        //Number of bits in time-out counter
+`endif
 `endif
 
 module watchdog_implementation (timeout);
@@ -14,13 +18,15 @@ module watchdog_implementation (timeout);
    parameter POST_COUNTER_WIDTH   = 8;         //Number of bits in final time-out counter
    parameter CLK_PERIOD           = 1;         //Default clock period length
    
-
+`ifdef ATHDL_SIM
+   reg [`COUNTER_WIDTH-1:0]       counter;
+`else
 `ifdef MTI
    reg [`COUNTER_WIDTH-1:0]       counter;
 `else
    reg [COUNTER_WIDTH-1:0]       counter;
 `endif
-
+`endif
    reg [POST_COUNTER_WIDTH-1:0] post_counter;
    reg 			         clk;
    reg                           timeout_reg;
