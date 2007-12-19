@@ -35,6 +35,38 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `include "teal.svh"
 
+`ifdef VCS
+  `define virtual_interfaces_in_packages
+  `define virtual_interface_declarations_NOT_in_interface
+ `endif
+
+`ifdef ATHDL_SIM
+ `define   virtual_interfaces_in_packages
+  `define virtual_interface_declarations_NOT_in_interface
+`endif
+
+`ifdef MTI
+ `define   virtual_interfaces_in_packages
+  `define virtual_interface_declarations_NOT_in_interface
+`endif
+
+ 
+//If the simulator does not support interfaces delcared in packages, put them outside.
+ `ifdef virtual_interface_declarations_NOT_in_interface
+interface watchdog_interface (
+   input reg hdl_timeout_,
+`ifdef ATHDL_SIM
+    input reg [`COUNTER_WIDTH-1:0] hdl_timeout_count_
+`else
+`ifdef MTI
+   output reg [`COUNTER_WIDTH-1:0] hdl_timeout_count_
+`else
+   output reg [COUNTER_WIDTH-1:0] hdl_timeout_count_
+`endif
+`endif
+  );
+endinterface
+ `endif
    
 package truss;
 
@@ -52,7 +84,7 @@ package truss;
    
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-   function string version (); return  "truss_1.61a";   endfunction
+   function string version (); return  "truss_1.62";   endfunction
 endpackage
 
 //interfaces are not allowed in a package, so the folowing cannot be inside of truss

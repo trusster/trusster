@@ -40,9 +40,6 @@ typedef class verification_component;
 
 //used in the .v as well
 
-`ifdef MTI
- `define   virtual_interfaces_in_packages
-`endif
 
 //put the wires in the interface to not change watchdog.v
 //MUST copy to /testbench/$config/interfaces_dut.svh
@@ -50,7 +47,7 @@ typedef class verification_component;
    `ifdef virtual_interface_declarations_in_interface
 interface watchdog_interface (
    wire hdl_timeout_,
-   wire [COUNTER_WIDTH-1:0] hdl_timeout_count_
+   wire [COUNTER_WIDTH-1:0] hdl_timeout_count_;
   );
 endinterface // watchdog_interface
    `endif

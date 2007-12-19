@@ -128,6 +128,8 @@ sub check_env{
   # Check that we have a simulator defined at all!
   if($options{"simulator"} eq "VCS"){ 
   }
+  elsif($options{"simulator"} eq "VCSI"){ 
+  }
   elsif($options{"simulator"} eq "NCSIM"){
   }
   elsif($options{"simulator"} eq "MTI"){

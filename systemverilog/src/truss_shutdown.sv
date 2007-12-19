@@ -38,27 +38,50 @@ function void shutdown::shutdown_now (string reason);
 
    teal::vlog log = teal::vlog_get();
 
-   static bit sentry = 0;
-   if (sentry == 1) begin
-      log.local_print ("Shutdown called while shutting down! Panic exit.");
-      $finish ();
+   begin
+      static bit sentry = 0;
+      if (0 && (sentry == 1)) begin
+	 log.local_print ("Shutdown called while shutting down! Panic exit.");
+	 $finish ();
+      end
+      sentry = 1;
    end
-  sentry = 1;
 
-   `truss_assert (testbench_ != null);
-   testbench_.report (reason);
+//   `truss_assert (testbench_ != null);
+   if (testbench_ == null) begin
+      log.local_print ("truss::shutdown_now() Testbench pointer is NULL! Skipping report()");
+   end
+   else begin
+      testbench_.report (reason);
+   end
 
-   `truss_assert (test_ != null);
-   test_.report (reason);
+//   `truss_assert (test_ != null);
+   if (test_ == null) begin
+	log.local_print ("truss::shutdown_now() Test pointer is NULL! Skipping report()");
+   end
+   else begin
+	test_.report (reason);
+   end
 
-   `truss_assert (watchdog_ != null);
-   watchdog_.report (reason);
+//   `truss_assert (watchdog_ != null);
+   if (watchdog_ == null) begin
+      log.local_print ("truss::shutdown_now() Watchdog pointer is NULL! Skipping report()");
+   end
+   else begin
+      watchdog_.report (reason);
+   end
 
    if (log.how_many (teal::vout_error) == 0) begin
       log_.info ({"Test ", test_.name(), " Passed."});
    end
    else begin
-      string msg = $psprintf ("Test %s Failed. Contained %0d errors.", test_.name(), log.how_many (teal::vout_error));
+      string msg;
+      if (test_ == null) begin
+	    msg = $psprintf ("Test UNKNOWN Failed. Contained %0d errors.", log.how_many (teal::vout_error));
+      end
+      else begin
+	   msg = $psprintf ("Test %s Failed. Contained %0d errors.", test_.name(), log.how_many (teal::vout_error));
+      end
       log_.info (msg);
    end
    $finish ();

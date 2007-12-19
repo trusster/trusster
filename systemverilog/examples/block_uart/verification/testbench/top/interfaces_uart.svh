@@ -66,6 +66,7 @@ interface uart_16550_interface (
   endinterface
 
 
+`ifndef virtual_interface_declarations_NOT_in_interface
 interface watchdog_interface (
    input reg hdl_timeout_,
 `ifdef ATHDL_SIM
@@ -79,7 +80,7 @@ interface watchdog_interface (
 `endif
   );
 endinterface
-
+`endif
 
 interface top_reset (
     output reg 	       wb_rst_ir

@@ -53,7 +53,7 @@ parameter teal::uint64 UART_CLOCK_FREQUENCY =  29489826; //29.4Mhz
 
 function  testbench::new ( string top_path, truss::interfaces_dut dut_base);
    interfaces_uart uart_dut;   
-   super.new (name, dut_base);
+   super.new (top_path, dut_base);
    log_.debug ("testbench new() begin ");
 
    begin

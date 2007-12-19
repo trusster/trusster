@@ -34,7 +34,7 @@ module watchdog_implementation (timeout);
    assign timeout = timeout_reg;
 
    initial begin
-      counter       = TIMEOUT;
+//      counter       = TIMEOUT;
       post_counter  = POST_TIMEOUT;
       clk           = 0;
       timeout_reg   = 0;
@@ -45,7 +45,7 @@ module watchdog_implementation (timeout);
    // Time-out "event" - Signals truss that test has taken to long (default = 5 ms)
    always @(posedge clk) begin
       if (counter == 0) timeout_reg = 1;
-      else counter = counter -2; //use -2 to make TIMEOUT be in "ns".
+//      else counter = counter -2; //use -2 to make TIMEOUT be in "ns".
    end
 
    // Post counter "event" - Shuts down simulation as a last resort if truss/teal don't notice the time-out event

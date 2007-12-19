@@ -46,7 +46,7 @@ function alu_test::new (testbench tb, truss::watchdog w, string n);
    //add generator default constraints
     teal::dictionary_put ({test_component_.name(), "_min_num_operations"}, "4", teal::default_only);
     teal::dictionary_put ({test_component_.name(), "_max_num_operations"}, "10",  teal::default_only);
-   log_.debug ("alu_test new() begin ");
+   log_.debug ("alu_test new() end ");
 endfunction // alu_test
 
 

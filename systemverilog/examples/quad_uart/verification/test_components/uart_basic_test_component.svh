@@ -57,9 +57,9 @@ class uart_basic_test_component extends truss::test_component;
 
     virtual task  write_to_hardware (); bfm_.write_to_hardware (); endtask
 
-    extern virtual protected task  generate2 ();
-    extern virtual protected task  wait_for_completion_ ();
-    extern virtual protected task  start_components_ ();
+    extern virtual task  generate2 ();
+    extern virtual task  wait_for_completion_ ();
+    extern virtual task  start_components_ ();
 
     protected uart_generator                      generator_;
      uart_checker                        checker_;
