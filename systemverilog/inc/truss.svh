@@ -37,22 +37,18 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `ifdef VCS
   `define virtual_interfaces_in_packages
-  `define virtual_interface_declarations_NOT_in_interface
  `endif
 
 `ifdef ATHDL_SIM
  `define   virtual_interfaces_in_packages
-  `define virtual_interface_declarations_NOT_in_interface
 `endif
 
 `ifdef MTI
  `define   virtual_interfaces_in_packages
-  `define virtual_interface_declarations_NOT_in_interface
 `endif
 
  
 //If the simulator does not support interfaces delcared in packages, put them outside.
- `ifdef virtual_interface_declarations_NOT_in_interface
 interface watchdog_interface (
    input reg hdl_timeout_,
 `ifdef ATHDL_SIM
@@ -66,7 +62,6 @@ interface watchdog_interface (
 `endif
   );
 endinterface
- `endif
    
 package truss;
 

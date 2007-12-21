@@ -55,23 +55,6 @@ interface top_reset (
 		     );
   endinterface // top_reset
 
- `ifdef virtual_interface_declarations_NOT_in_interface
-`else
-interface watchdog_interface (
-   input reg hdl_timeout_,
-`ifdef ATHDL_SIM
-    input reg [`COUNTER_WIDTH-1:0] hdl_timeout_count_
-`else
-`ifdef MTI
-   output reg [`COUNTER_WIDTH-1:0] hdl_timeout_count_
-`else
-   output reg [COUNTER_WIDTH-1:0] hdl_timeout_count_
-`endif
-`endif
-  );
-endinterface
-`endif
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class interfaces_alu extends truss::interfaces_dut;

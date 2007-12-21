@@ -335,8 +335,6 @@ if ($options{"hdl_compile"}){
                     "+incdir+$ENV{\"TRUSS_HOME\"}/src ".    #for truss_watchdog.sv
                     "+incdir+$ENV{\"PROJECT_HOME\"}/verification/tests ".
                     " +define+TEST=$options{\"test\"} " .
-#                    " +define+TEST_NAME=\\\\\"\\\\\\\\\\\\\\\"$options{\"test\"}\\\\\\\\\\\\\\\"\\\\\\\" " .
-#                    " +define+TEST_NAME=\\\"\\\\\\\\\"$options{\"test\"}\\\\\\\\\"\\\" " .
                     " +define+TEST_NAME=\\\"$options{\"test\"}\\\" " .
                     " +define+TEST_FILE=$options{\"test\"}\.svh " .
                     " $ENV{\"TRUSS_HOME\"}/src/truss_watchdog.v  ".

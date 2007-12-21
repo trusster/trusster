@@ -66,21 +66,6 @@ interface uart_16550_interface (
   endinterface
 
 
-interface watchdog_interface (
-   input reg hdl_timeout_,
-`ifdef ATHDL_SIM
-    input reg [`COUNTER_WIDTH-1:0] hdl_timeout_count_
-`else
-`ifdef MTI
-   output reg [`COUNTER_WIDTH-1:0] hdl_timeout_count_
-`else
-   output reg [COUNTER_WIDTH-1:0] hdl_timeout_count_
-`endif			      
-`endif
-  );
-endinterface
-
-
 interface top_reset (
     output reg 	       wb_rst_ir
 		     );
@@ -106,4 +91,4 @@ class interfaces_uart extends truss::interfaces_dut;
       endfunction
 endclass
 
-`endif //  `ifndef __interfaces_alu__
+`endif 
