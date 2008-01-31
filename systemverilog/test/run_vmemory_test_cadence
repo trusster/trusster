@@ -1,0 +1,1 @@
+irun	vout_test.sv 	vout_test.v	-f hdl_paths.ncsim +define+PURE=extern	+define+ncsim=1	+out_file+vout_test_results.txt 

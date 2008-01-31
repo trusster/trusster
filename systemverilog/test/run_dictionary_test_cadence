@@ -1,0 +1,1 @@
+irun	dictionary_test.sv 	dictionary_test.v	-f hdl_paths.ncsim +define+PURE=extern	+define+ncsim=1	+out_file+dictionary_test_results.txt 

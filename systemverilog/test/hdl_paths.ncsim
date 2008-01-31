@@ -1,0 +1,5 @@
+
+-INCDIR $TEAL_HOME
+#-MODELPATH $PROJECT_HOME/../rtl/uart
+
+
