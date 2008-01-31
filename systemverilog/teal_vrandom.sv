@@ -123,30 +123,27 @@ endfunction
 function bit[31:0] random_range::draw_val2 (bit[31:0] low, bit[31:0] up);
   if (low == up) return low;
 begin
+`ifdef ncsim
+  bit[31:0] lower;
+  bit[31:0] upper;
+   bit [31:0] delta;
+   bit[47:0] value;
+   bit [31:0] returned;
+
+   lower=  ((low < up) ? low : up);
+   upper = ((low < up) ? up : low);
+   delta = (up - low + 1);
+   returned = (value % (delta)) + lower;
+   value = draw ();
+`else
   bit[31:0] lower=  ((low < up) ? low : up);
   bit[31:0] upper = ((low < up) ? up : low);
   bit[31:0] delta = (up - low + 1);
-`ifdef jkljkjl
-   realtime drawn = super.draw ();
-   drawn /= 48'h1_0000_0000_0000;
-   
-   $display ("Drawn is %f", drawn);
-   
-   begin
-  bit[31:0] returned = (lower + (drawn * delta));
-  if (returned > upper) begin
-    returned = upper;
-  end
-   if (returned) $display ("%m returning %0d", returned);
-  return returned;
-   end
-`else // !`ifdef jkljkjl
-   bit[47:0] value = draw ();
+   bit [47:0] value = draw ();
    bit [31:0] returned = (value % (delta)) + lower;
+`endif
 // $display ("%m returning %0d", returned);
    return returned;
-   
-`endif // !`ifdef jkljkjl
 end
    
 endfunction
@@ -163,9 +160,15 @@ endfunction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 task vrandom::init_with_file (string master_seed_path);
-   integer   file_id = $fopen (master_seed_path, "r");
+`ifdef ncsim
+   integer    file_id;
+   bit 	      found;
+file_id = $fopen (master_seed_path, "r");
+found = 0;
+`else
+      integer   file_id = $fopen (master_seed_path, "r");
    bit 	     found = 0;
-
+`endif
    if (file_id) begin //cannot rely on short circuit &&
       while ((!found) && (! $feof(file_id))) begin
 	 integer unused;
@@ -184,14 +187,27 @@ task vrandom::init_with_file (string master_seed_path);
    if (! found) begin //write it there, so next run will find it
       //     integer foo = $time();
       //     $ramdom (foo);
+`ifdef ncsim
+      integer foo;
+      master_seed_[0] = $urandom (foo); master_seed_[1] = $urandom (foo); master_seed_[2] = $urandom (foo);
+`else
       master_seed_[0] = $urandom (); master_seed_[1] = $urandom (); master_seed_[2] = $urandom ();
+`endif      
       begin
+`ifdef ncsim
+	 integer file_id;
+	 string msg;
+	 integer dummy;
+	 file_id = $fopen (master_seed_path, "w+");
+	 dummy = $ferror (file_id, msg);
+`else
 	 integer file_id = $fopen (master_seed_path, "w+");
 	 string msg;
 	 integer dummy = $ferror (file_id, msg);
+`endif
 	 if (! file_id) begin
 	    $display ("%t %m %s", $time, msg);
-	    $finish ("Unable to master file for writing");
+	    $finish (04101962);
 	 end
 	 
 	 $fwrite (file_id, "%0d %0d %0d", master_seed_[0], master_seed_[1], master_seed_[2]);
@@ -228,7 +244,7 @@ endfunction // random_range_8
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function bit[7:0] random_range_8::draw_val ();
-   bit [47:0] value = draw ();
+   bit [47:0] value;
    bit [7:0]  returned;
    value = draw ();
 `ifdef kjljjjkljkljl
@@ -260,8 +276,9 @@ endfunction // random_range_8
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function bit[31:0] random_range_32::draw_val ();
-   bit [47:0] value = draw ();
-   bit [31:0]  returned = value;
+   bit [47:0] value;
+   bit [31:0] returned;
+   
    value = draw ();
 `ifdef kl
    

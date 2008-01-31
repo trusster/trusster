@@ -30,7 +30,9 @@
  */
 
 `include "teal.svh"
-
+`ifdef ncsim
+`timescale 1 ns / 1 ns
+`endif
 
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
@@ -39,10 +41,17 @@ program verification_top ();
 initial begin
    teal::dictionary_read ("dictionary.txt");
    begin
+`ifdef ncsim
+      teal::file_vlog not_used;
+      teal::vout log;
+      not_used = new (teal::dictionary_find ("out_file"), 
+				      teal::dictionary_find_integer ("interactive", 1));
+	log = new ("dictionary_test");
+`else
       teal::file_vlog not_used = new (teal::dictionary_find ("out_file"), 
 				      teal::dictionary_find_integer ("interactive", 1));
       teal::vout log = new ("dictionary_test");
-
+`endif
 
       @ (posedge (top.run_test[2]));
 
@@ -157,7 +166,12 @@ initial begin
       teal::dictionary_clear ();
 
       begin
-	 teal::vlog v = teal::vlog_get ();
+`ifdef ncsim
+	   teal::vlog v;
+	   v = teal::vlog_get ();
+`else
+	   teal::vlog v = teal::vlog_get ();
+`endif
 	 if (v.how_many (teal::vout_error)) begin
 	    log.info ($psprintf ("Test Failed: Contained %0d errors",  v.how_many (teal::vout_error)));
 	 end

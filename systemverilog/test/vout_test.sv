@@ -31,40 +31,58 @@
 
 `include "teal.svh"
 
+`timescale 1 ns / 1 ns
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 program  verification_top ();
 initial
   begin
+`ifdef ncsim
+     teal::vout log;
+     log = new ("vout_test");
+`else
      teal::vout log = new ("vout_test");
+`endif
+
      @ (posedge (top.run_test[7]));
      begin
-	
+`ifdef ncsim	
+	teal::file_vlog not_used;
+	int foo;
+        not_used = new (teal::dictionary_find ("out_file"), 
+					teal::dictionary_find_integer ("interactive", 1));
+`else
+	int foo;
 	teal::file_vlog not_used = new (teal::dictionary_find ("out_file"), 
 					teal::dictionary_find_integer ("interactive", 1));
-
+`endif
 	
 	//Test some debug logging
-	log.show_debug_level (teal::no_debug);
+	foo = log.show_debug_level (teal::no_debug);
 	log.debug ("Should not be displayed.");
 	log.debug_n (5, "Level 5 Should not be displayed.");
 
-	log.show_debug_level (teal::debug);
+	foo = log.show_debug_level (teal::debug);
 	log.debug ("A debug message.");
 
-	log.show_debug_level (4);
+	foo = log.show_debug_level (4);
 	log.debug_n (5, "Level 5 Should not be displayed.");
 
-	log.show_debug_level (5);
+	foo = log.show_debug_level (5);
 	log.debug_n (5, "A \"Level 5\" debug message.");
 
 	//normal debug should revert to the default, which is one
-	log.show_debug_level (0);
+	foo = log.show_debug_level (0);
 	log.debug ("Should not be displayed.");
 	log.error ("show see this message");
 
 	begin
+`ifdef ncsim
+	   teal::vlog v;
+	   v = teal::vlog_get ();
+`else
 	   teal::vlog v = teal::vlog_get ();
+`endif
 	   if ( (v.how_many (teal::vout_error) != 1) 
 		|| (v.how_many (teal::vout_debug) != 2)  ) begin
 	      log.error ($psprintf ("Test Failed: Contained %0d errors and %0d debug messages",  

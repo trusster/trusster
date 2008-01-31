@@ -39,9 +39,13 @@ virtual class memory_bank;
    extern function new  (string path);
 
       //the two methods are pure virtual, you must implement them
+`ifdef ncsim
+ virtual task from_memory (bit [63:0] address, output bit [MAX_DATA - 1:0] value, input int size); endtask
+ virtual task to_memory (bit [63:0] address, bit [MAX_DATA - 1:0]  value, int size); endtask
+`else
  `PURE virtual task from_memory (bit [63:0] address, output bit [MAX_DATA - 1:0] value, input int size); 
  `PURE virtual task to_memory (bit [63:0] address, bit [MAX_DATA - 1:0]  value, int size); 
-
+`endif
    extern function bit contains1 (string path);
    extern function integer contains2 (bit [63:0] address);
    extern function string stats ();
@@ -85,7 +89,12 @@ endfunction
 
 //setup a mapping between some global address space and some memory
 function void  add_map (string path, bit [63:0] first_address, bit [63:0] last_address);
+`ifdef ncsim
+   memory_impl impl;
+   impl = memory_get ();
+`else
    memory_impl impl = memory_get ();
+`endif
    impl.add_map (path, first_address, last_address);
 endfunction
 
@@ -94,35 +103,65 @@ endfunction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 task read (bit [63:0] global_address, output bit [MAX_DATA - 1:0] value, input int size = MAX_DATA);
+`ifdef ncsim
+   memory_impl impl;
+   impl = memory_get ();
+`else
    memory_impl impl = memory_get ();
+`endif
+
    impl.read (global_address, value, size);
 endtask // teal_add_map
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 task write (bit [63:0] global_address, input bit [MAX_DATA - 1:0] value, int size = MAX_DATA);
+`ifdef ncsim
+   memory_impl impl;
+   impl = memory_get ();
+`else
    memory_impl impl = memory_get ();
+`endif
+
    impl.write (global_address, value, size);
 endtask // teal_add_map
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function void add_memory_bank (/*owner*/ memory_bank bank);
+`ifdef ncsim
+   memory_impl impl;
+   impl = memory_get ();
+`else
    memory_impl impl = memory_get ();
+`endif
+
    impl.add_memory_bank (bank);
 endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function /*cached*/ memory_bank memory_lookup1 (bit [63:0] address_in_range);
+`ifdef ncsim
+   memory_impl impl;
+   impl = memory_get ();
+`else
    memory_impl impl = memory_get ();
+`endif
+
    return (impl.lookup1 (address_in_range));
 endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function /*cached*/ memory_bank memory_lookup2 (string partial_path);
+`ifdef ncsim
+   memory_impl impl;
+   impl = memory_get ();
+`else
    memory_impl impl = memory_get ();
+`endif
+
    return (impl.lookup2 (partial_path));
 endfunction
 

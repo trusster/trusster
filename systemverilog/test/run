@@ -61,9 +61,9 @@ foreach $test (@test_list) {
 #  print "For test \"${test}\" \n";
 #  next;
 
-  if ($c) {
-    system ("make SIM=$SIM TEST=$test");
-  }
+#  if ($c) {
+#    system ("make SIM=$SIM TEST=$test");
+#  }
 
   $now = `date`;
   print "Starting simulation at $now \n";
@@ -103,14 +103,16 @@ foreach $test (@test_list) {
     }
   }
   elsif ($ncsim) {
+irun dictionary_test.sv dictionary_test.v -f hdl_paths.ncsim +define+PURE=extern +define+ncsim=1 +out_file+dictionary_test_results.txt
       system ("mkdir ncvlog_lib");
       system ("echo DEFINE ncvlog_lib ./ncvlog_lib > cds.lib");
       system ("ncvlog $test.v -WORK ncvlog_lib");
 #      system ("ncelab -LIBNAME ncvlog_lib top -SNAPSHOT ncvlog_lib.ncvlog_lib:ncvlog_lib");
 #      $run_command = "ncxlmode $test.v +loadpli1=./$test.$SIM.so:vlog_startup_routines +out_file+$results_file";    
 #      $run_command = "ncxlmode $test.v +loadpli1=./libpli.so:veriusertfs +out_file+$results_file";    
-      system ("ncelab -REDUCE_MESSAGES -NOCOPYRIGHT -ARR_ACCESS -ACCWARN -LIBNAME ncvlog_lib -LOGFILE ncelab.log -access +RWC ncvlog_lib.top -SNAPSHOT ncvlog_lib.ncvlog_lib:ncvlog_lib");
-      system ("ncsim top");
+#      system ("ncelab -REDUCE_MESSAGES -NOCOPYRIGHT -ARR_ACCESS -ACCWARN -LIBNAME ncvlog_lib -LOGFILE ncelab.log -access +RWC ncvlog_lib.top -SNAPSHOT ncvlog_lib.ncvlog_lib:ncvlog_lib");
+      system ("irun -REDUCE_MESSAGES -NOCOPYRIGHT -ARR_ACCESS -ACCWARN -LIBNAME ncvlog_lib -LOGFILE ncelab.log -access +RWC ncvlog_lib.top -SNAPSHOT ncvlog_lib.ncvlog_lib:ncvlog_lib");
+#      system ("ncsim top");
       $run_command = "ncsim -REDUCE_MESSAGES -NOCOPYRIGHT -ACCWARN -RUN -LOGFILE ncsim.log ncvlog_lib.ncvlog_lib:ncvlog_lib +out_file+$results_file"
   }
   elsif ($vcs) {

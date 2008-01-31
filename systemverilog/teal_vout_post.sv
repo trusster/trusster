@@ -50,14 +50,24 @@ endfunction // vout
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    function void vlog::output_message (message_list msg);
+`ifdef ncsim
+      message_list msg2;
+      msg2 = output_message_ (msg); 
+`else
       message_list msg2 = output_message_ (msg); 
+`endif
       if (after_me_ != null) after_me_.output_message (msg2);
     endfunction
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    function void  vlog::local_print (string val);
+`ifdef ncsim
+      string val2;
+      val2 = local_print_ (val);
+`else
       string val2 = local_print_ (val);
+`endif
 //      $display ("after local local_print_ after_me %0d will print \"%s\"", (after_me_ != null), val2, 0, 0,0);  //don't ask
       if ((after_me_ != null) && (val2 != "")) after_me_.local_print (val2);
     endfunction
@@ -71,7 +81,12 @@ endfunction // vout
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function /*previous*/ bit vout::message_display (integer id, bit new_value);
+`ifdef ncsim
+   bit returned;
+   returned = message_display_[id];
+`else
    bit returned = message_display_[id];
+`endif
    message_display_[id] = new_value;
    return returned;
 endfunction
@@ -110,7 +125,12 @@ endfunction // vout
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function void vout::put_line_ (integer id, string value, string msg, integer level);
    string t;
+`ifdef ncsim
+   message_list a_message_list;
+   a_message_list = new ();
+`else
    message_list a_message_list = new ();
+`endif
 
 //   $display ("put line %d %s %s", id, value, msg);
    
@@ -124,7 +144,12 @@ function void vout::put_line_ (integer id, string value, string msg, integer lev
    if (message_display_[vout_message_data]) 
      a_message_list.put_message (vout_message_data, msg);
    begin
+`ifdef ncsim
+      vlog one;
+      one = vlog_get();
+`else
       vlog one = vlog_get();
+`endif
 // $display ($psprintf ("current %d show %d", level , show_debug_level_));      
       if (level <= show_debug_level_) one.output_message (a_message_list);
    end
@@ -133,7 +158,12 @@ endfunction
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function integer vout::show_debug_level (integer new_one);
-	      integer returned = show_debug_level_; show_debug_level_ = new_one; return (returned); endfunction
+`ifdef ncsim
+    integer returned;
+    returned = show_debug_level_; show_debug_level_ = new_one; return (returned); endfunction
+`else
+    integer returned = show_debug_level_; show_debug_level_ = new_one; return (returned); endfunction
+`endif
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -52,4 +52,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   endpackage
 `endif
 
+`ifdef ncsim
+import teal::*;
+`endif
+
 `endif

@@ -57,14 +57,24 @@ class vrandom;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    task vrandom_init_with_file (string master_seed_path);
+`ifdef ncsim
+      vrandom hack;
+      hack = new ();
+`else
       vrandom hack = new ();
+`endif
       hack.init_with_file (master_seed_path);
    endtask
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    task vrandom_init_with_seed (bit [63:0]  master_seed);
+`ifdef ncsim
+      vrandom hack;
+      hack = new ();
+`else
       vrandom hack = new ();
+`endif
       hack.init_with_seed (master_seed);
    endtask // init_with_seed
 
@@ -94,8 +104,13 @@ class random_range extends  random_range_32;
 endclass 
      
 
+`ifdef ncsim
+`define RAND_8(x) begin teal::random_range_8 r; r = new ("x",11); x = r.draw_val (); end
+`define RAND_32(x) begin teal::random_range_32 r; r = new ("x", 3); x = r.draw_val (); end
+`define RAND_RANGE(x,y,z) begin teal::random_range r; r = new ({"x", "y", "z"}, 11); x = r.draw_val2 (y,z); end
+`else
 `define RAND_8(x) begin static teal::random_range_8 r = new ("x",11); x = r.draw_val (); end
 `define RAND_32(x) begin static teal::random_range_32 r = new ("x", 3); x = r.draw_val (); end
 `define RAND_RANGE(x,y,z) begin static teal::random_range r = new ({"x", "y", "z"}, 11); x = r.draw_val2 (y,z); end
-
+`endif
 `include "teal_vrandom.sv"

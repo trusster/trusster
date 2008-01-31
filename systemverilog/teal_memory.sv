@@ -89,10 +89,22 @@ endfunction
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 task memory_impl::read (bit [63:0] global_address, output bit [MAX_DATA - 1:0] value, input int size);
+`ifdef ncsim
+   bit found;
+   int found_index;
+   found = 0;
+   found_index = -1;
+`else
    bit found = 0;
    int found_index = -1;
+`endif
    for (int i = 0; i < memory_banks_.size (); ++i) begin
+`ifdef ncsim
+      integer offset;
+      offset = memory_banks_[i].contains2 (global_address);
+`else
       integer offset = memory_banks_[i].contains2 (global_address);
+`endif
       if (offset != -1) begin
 	 if (found) begin
 	    log_.error ($psprintf ("Found two banks that contain address 0x%x. %s and %s",
@@ -113,10 +125,22 @@ endtask // read
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 task memory_impl::write (bit [63:0] global_address,  input bit [MAX_DATA - 1:0] value, int size);
+`ifdef ncsim
+   bit found;
+   int found_index;
+   found = 0;
+   found_index = -1;
+`else
    bit found = 0;
    int found_index = -1;
+`endif
    for (int i = 0; i < memory_banks_.size (); ++i) begin
+`ifdef ncsim
+      integer offset;
+      offset = memory_banks_[i].contains2 (global_address);
+`else
       integer offset = memory_banks_[i].contains2 (global_address);
+`endif
       if (offset != -1) begin
 	 if (found) begin
 	    log_.error ($psprintf ("Found two banks that contain address 0x%x. %s and %s",
@@ -143,12 +167,28 @@ endfunction
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function /*cached*/ memory_bank memory_impl::lookup1 (bit [63:0] address_in_range);
+`ifdef ncsim
+   bit found;
+   int found_index;
+   memory_bank returned;
+
+   found = 0;
+   found_index = -1;
+   returned = null;
+`else
    bit found = 0;
    int found_index = -1;
    memory_bank returned = null;
+`endif
+
    
    for (int i = 0; i < memory_banks_.size (); ++i) begin
+`ifdef ncsim
+      integer offset;
+     offset = memory_banks_[i].contains2 (address_in_range);
+`else
       integer offset = memory_banks_[i].contains2 (address_in_range);
+`endif
       if (offset != -1) begin
 	 if (found) begin
 	    log_.error ($psprintf ("Found two banks that contain address 0x%x. %s and %s",
@@ -170,9 +210,19 @@ endfunction
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function /*cached*/ memory_bank memory_impl::lookup2 (string partial_path);
+`ifdef ncsim
+   bit found;
+   int found_index;
+   memory_bank returned;
+
+   found = 0;
+   found_index = -1;
+   returned = null;
+`else
    bit found = 0;
    int found_index = -1;
    memory_bank returned = null;
+`endif
    
    for (int i = 0; i < memory_banks_.size (); ++i) begin
       if (memory_banks_[i].contains1 (partial_path)) begin
@@ -193,5 +243,3 @@ function /*cached*/ memory_bank memory_impl::lookup2 (string partial_path);
    end
    return returned;
 endfunction
-
-

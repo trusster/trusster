@@ -66,7 +66,11 @@ virtual class vlog;
             endfunction
 
 
+`ifdef ncsim
+    protected virtual function string local_print_ (string val); endfunction
+`else
     `PURE protected virtual function string local_print_ (string val); 
+`endif
 
 
     static vlog the_; 

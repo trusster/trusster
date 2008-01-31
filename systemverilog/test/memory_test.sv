@@ -38,7 +38,11 @@ interface memory_1 (
 `ifdef VCS
    input 
  `else
-   output
+`ifdef ncsim
+//  output
+`else
+   output 
+`endif
 `endif
     reg        [122:0]  bank0  [0 : 312]
 		);
@@ -48,11 +52,19 @@ interface memory_2 (
 `ifdef VCS
   input
 `else		    
+`ifdef ncsim
+//	output
+`else
    output 
+`endif
 `endif 
     reg [17:0] a_top_bank  [0 : 1717]
 );
 endinterface
+
+`ifdef ncsim
+package local_muck;
+`endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,20 +116,29 @@ class memory_bank_2 extends teal::memory_bank;
    endtask
 endclass
 
+
+`ifdef ncsim
+endpackage
+
+import local_muck::*;
+`endif
+
 module interfaces_dut;
 	memory_1 mb1_interface (top.a_sub_module.bank0);
 	memory_2 mb2_interface (top.a_top_bank);
 endmodule
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 program verification_top;
 
 initial begin:initial_block
-   teal::file_vlog not_used = new (teal::dictionary_find ("out_file"), 
-				   teal::dictionary_find_integer ("interactive", 1));
-   teal::vout log = new ("memory_test");
+      teal::file_vlog not_used;
+      teal::vout log;
+      not_used = new (teal::dictionary_find ("out_file"), 
+				      teal::dictionary_find_integer ("interactive", 1));
+	log = new ("memory_test");
+
 
    @ (posedge (top.init_done));
    
@@ -125,8 +146,8 @@ initial begin:initial_block
 
    //first, put them in the list, (do this in testbench top)
    begin
-      memory_bank_1 mb1;
-      memory_bank_2 mb2 ;
+      local_muck::memory_bank_1 mb1;
+      local_muck::memory_bank_2 mb2 ;
       mb1 = new (interfaces_dut.mb1_interface);
       mb2 = new (interfaces_dut.mb2_interface);
       teal::add_memory_bank (mb1);
@@ -165,9 +186,12 @@ initial begin:initial_block
 `ifdef kjjjjlj
       begin
       //now the direct way...
-	 teal::memory_bank top_level = teal::memory_lookup2 ("top.a_top_bank");  
-	 teal::memory_bank sub_level = teal::memory_lookup1 ('h48000);
+	 teal::memory_bank top_level;
+	 teal::memory_bank sub_level;
 	 
+	top_level = teal::memory_lookup2 ("top.a_top_bank");  
+	sub_level = teal::memory_lookup1 ('h48000);
+
 	 top_level.from_memory (1717, top_data, 8);
 	 msg = $psprintf ("Initial value of top_level[1717] is 0x%x (%0d)", top_data, top_data);
 	 if (top_data == 1717) log.info (msg); else log.error (msg);
@@ -195,7 +219,8 @@ initial begin:initial_block
    
 
       begin
-	 teal::vlog v = teal::vlog_get ();
+	  teal::vlog v;
+	  v = teal::vlog_get ();
 	 if (v.how_many (teal::vout_error)) begin
 	    log.info ($psprintf ("Test Failed: Contained %0d error(s).",  v.how_many (teal::vout_error)));
 	 end

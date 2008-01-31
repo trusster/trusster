@@ -37,7 +37,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function void message_list::put_message (integer id, string value);
+`ifdef ncsim
+   message m;
+  m = new ();
+`else
    message m = new ();
+`endif
    m.id = id;
    m.value = value;
    the_list_.push_back (m);
@@ -67,7 +72,7 @@ function integer str_find (string s1, string key);
    if (s1 == key) return 0; 
    
    for (integer i = 0; i < (s1.len () - key.len()); ++i) begin
-      integer j = 0;
+      integer j;
       j = 0; 
       for (int questa = 0; j <key.len (); ++j) begin
 	// $display ("Compare %c (%0d) with %c (%0d)", s1.getc (i + j), i + j, key.getc (j), j);
@@ -107,8 +112,16 @@ class local_vlog extends vlog;
    endfunction // string
 
    protected virtual function automatic message_list output_message_ (message_list m);
+`ifdef ncsim
+      string val;
+      vlog v;
+
+     val = m.convert_to_string (fatal_message_seen_);
+      v = vlog_get ();
+`else
       string val = m.convert_to_string (fatal_message_seen_);
       vlog v = vlog_get ();
+`endif
 //   $display ("after convert: will print \"%s\"", val, 0, 0,0);  //don't ask
       for (integer i = 0; i < m.the_list_.size(); ++i) begin
 	 id_count_[m.the_list_[i].id]++;

@@ -35,10 +35,20 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 `ifdef MTI
 import "DPI-C" pure function real sqrt (real x);
 `else
+`ifdef ncsim
+package arrgh;
+import "DPI-C" pure function real sqrt3 (real x);
+function real sqrt2 (real x); return sqrt3(x); endfunction
+endpackage;
+
+`timescale 1ns/1ns;
+
+`else
 import "DPI" pure function real sqrt2 (inout realtime x);
 `endif
+`endif
 
-   
+package local_fcns;   
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,19 +58,31 @@ function realtime abs_f (realtime lhs);
 	return (-lhs);
 	else return (lhs);
 endfunction
-
+endpackage
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 program   verification_top ();
 
-initial begin:initial_block
-   teal::file_vlog not_used = new (teal::dictionary_find ("out_file"), 
-				   teal::dictionary_find_integer ("interactive", 1));
-   teal::vout log = new ("vrandom_test");
+`ifdef ncsim
+      teal::file_vlog not_used;
+      teal::vout log;
    int histogram_8[*];
    int histogram_range[*];
    int histogram_32[*];
+initial begin:initial_block
+      not_used = new (teal::dictionary_find ("out_file"), 
+				      teal::dictionary_find_integer ("interactive", 1));
+	log = new ("dictionary_test");
+`else
+initial begin:initial_block
+      teal::file_vlog not_used = new (teal::dictionary_find ("out_file"), 
+				      teal::dictionary_find_integer ("interactive", 1));
+      teal::vout log = new ("dictionary_test");
+   int histogram_8[*];
+   int histogram_range[*];
+   int histogram_32[*];
+`endif
 
 
    @ (posedge (top.run_test[7]));
@@ -83,8 +105,15 @@ initial begin:initial_block
    end
 
    begin
+`ifdef ncsim
+      integer foo;
+      foo = $fopen ("data.txt", "w+");
+      assert (foo) else $fatal (03301999);
+`else
       integer foo = $fopen ("data.txt", "w+");
       assert (foo) else $fatal ("Unable to open data file for writing");
+`endif
+
       for (integer i = 0; (i < 256); ++i) begin
 	 string msg; int dummy;
 	 $fwrite (foo, "%0d \n", histogram_8[i]);
@@ -94,8 +123,14 @@ initial begin:initial_block
    end
 
    begin
+`ifdef ncsim
+      integer foo;
+      foo = $fopen ("data2.txt", "w+");
+      assert (foo) else $fatal (10051984);
+`else
       integer foo = $fopen ("data2.txt", "w+");
       assert (foo) else $fatal ("Unable to open data file for writing");
+`endif
       for (integer i = 45; (i < 12_045); ++i) begin
 	 string msg; int dummy;
 	 $fwrite (foo, "%0d \n", histogram_range[i]);
@@ -104,8 +139,14 @@ initial begin:initial_block
       $fclose (foo);
    end
    begin
+`ifdef ncsim
+      integer foo;
+      foo = $fopen ("data3.txt", "w+");
+      assert (foo) else $fatal (03271962);
+`else
       integer foo = $fopen ("data3.txt", "w+");
       assert (foo) else $fatal ("Unable to open data file for writing");
+`endif
       for (integer i = 0; (i < 16_000); ++i) begin
 	 string msg; int dummy;
 	 $fwrite (foo, "%0d \n", histogram_32[i]);
@@ -117,8 +158,15 @@ initial begin:initial_block
    //check that distribution is normal
    //compute standard distribution and verify that rand is < 1 sigma
    begin: main_checking
+`ifdef ncsim
+      realtime mean;
+      realtime  mean_of_squares;
+      mean= 0;
+      mean_of_squares = 0;
+`else
       realtime mean= 0;
       realtime  mean_of_squares = 0;
+`endif
       for (int i= 0; i < 256; ++i) begin
 	 mean += histogram_8[i];
 	 mean_of_squares += histogram_8[i] * histogram_8[i];
@@ -130,11 +178,15 @@ initial begin:initial_block
       begin : generate_std_deviation
 	 realtime standard_deviation;
 	 realtime temp;
-	 temp = abs_f ( mean_of_squares - (mean*mean));
+	 temp = local_fcns::abs_f ( mean_of_squares - (mean*mean));
 `ifdef MTI
 	 standard_deviation = sqrt (temp);
 `else
+`ifdef ncsim
+	 standard_deviation = arrgh::sqrt2 (temp);
+`else
 	 standard_deviation = sqrt2 (temp);
+`endif
 `endif
 	 if (standard_deviation < 1) standard_deviation = 1;  //correct for "spot on target"
 	 
@@ -153,24 +205,24 @@ initial begin:initial_block
 
 	 begin  : std_deviation_check
 	    int num_within_one;
-	    bit [31:0] num_within_two = 0;
+	    bit [31:0] num_within_two;
 	    num_within_one = 0;
 	    num_within_two = 0;
 	    for (int i= 0; i < 256; ++i) begin
-	       if (abs_f (histogram_8[i] - mean) <= standard_deviation) ++num_within_one;
-	       if (abs_f (histogram_8[i] - mean) <= (2 *standard_deviation)) ++num_within_two;
+	       if (local_fcns::abs_f (histogram_8[i] - mean) <= standard_deviation) ++num_within_one;
+	       if (local_fcns::abs_f (histogram_8[i] - mean) <= (2 *standard_deviation)) ++num_within_two;
 	    end
 
 	    begin
 	       string msg;
-		msg = $psprintf ("xx %0d xx were within one standard deviation. Expected at least: %0d",
+		msg = $psprintf ("%0d were within one standard deviation. Expected at least: %0d",
 				      num_within_one, (0.68 * 256));
 	       if (num_within_one >= (0.68 * 256))  log.info (msg);  else log.error (msg) ;
 	    end
 	    
 	    begin
 	       string msg;
-	       msg = $psprintf ("%0d xx were within two standard deviations. Expected at least: %0d",
+	       msg = $psprintf ("%0d  were within two standard deviations. Expected at least: %0d",
 				      num_within_two, (0.95 * 256));
 	       if (num_within_two >= (0.95 * 256)) log.info (msg); else log.error (msg);
 	    end // begin
@@ -182,8 +234,15 @@ initial begin:initial_block
    //check that distribution is normal
    //compute standard distribution and verify that rand is < 1 sigma
    begin : main_checking_0
+`ifdef ncsim
+      realtime mean;
+      realtime  mean_of_squares;
+	mean = 0;
+	mean_of_squares = 0;
+`else
       realtime mean= 0;
       realtime  mean_of_squares = 0;
+`endif
       for (int i= 45; i < 12_000; ++i) begin
 	 mean += histogram_range[i];
 	 mean_of_squares += histogram_range[i] * histogram_range[i];
@@ -192,16 +251,23 @@ initial begin:initial_block
       mean /= 12_000;
       mean_of_squares /= 12_000;
       begin : gen_std_deviation
-	 realtime temp = abs_f ( mean_of_squares - (mean*mean));
+	 realtime temp;
+	 realtime standard_deviation;
+	temp = local_fcns::abs_f ( mean_of_squares - (mean*mean));
 `ifdef MTI
-	 realtime standard_deviation = sqrt (temp);
+	standard_deviation = sqrt (temp);
 `else
-	 realtime standard_deviation = sqrt2 (temp);
+`ifdef ncsim
+	 standard_deviation = arrgh::sqrt2 (temp);
+`else
+	 standard_deviation = sqrt2 (temp);
+`endif
 `endif
       $display ("square root of %f0f is %0f", temp, standard_deviation);	    
 
 	 begin
-	    string msg = $psprintf ("mean %0f and  mean of squares %0f standard deviation %0f temp %0f",  
+	    string msg;
+	msg = $psprintf ("mean %0f and  mean of squares %0f standard deviation %0f temp %0f",  
 				   mean, mean_of_squares, standard_deviation, temp);
       $display ("mean of squares is %0f", mean_of_squares);
       $display ("mean is %0f sqared is %0f ", mean, mean*mean);
@@ -213,21 +279,26 @@ initial begin:initial_block
 
 
 	 begin :  check_std_deviation
-	    bit[31:0] num_within_one = 0;
-	    bit [31:0] num_within_two = 0;
+	    int num_within_one;
+	    bit [31:0] num_within_two;
+	    num_within_one = 0;
+	    num_within_two = 0;
+
 	    for (int i= 45; i < 12_000; ++i) begin
-	       if (abs_f (histogram_range[i] - mean) <= standard_deviation) ++num_within_one;
-	       if (abs_f (histogram_range[i] - mean) <= (2 *standard_deviation)) ++num_within_two;
+	       if (local_fcns::abs_f (histogram_range[i] - mean) <= standard_deviation) ++num_within_one;
+	       if (local_fcns::abs_f (histogram_range[i] - mean) <= (2 *standard_deviation)) ++num_within_two;
 	    end
 
 	    begin
-	       string msg = $psprintf ("%0d were within one standard deviation. Expected at least: %0d",
+	       string msg;
+		msg = $psprintf ("%0d were within one standard deviation. Expected at least: %0d",
 				      num_within_one, (0.68 * 12_000));
 	       if (num_within_one >= (0.68 * 12_000))  log.info (msg);  else log.error (msg) ;
 	    end
 	    
 	    begin
-	       string msg = $psprintf ("%0d were within two standard deviations. Expected at least: %0d",
+	       string msg;
+		msg = $psprintf ("%0d were within two standard deviations. Expected at least: %0d",
 				      num_within_two, (0.95 * 12_000));
 	       if (num_within_two >= (0.95 * 12_000)) log.info (msg); else log.error (msg);
 	    end // begin
@@ -236,7 +307,12 @@ initial begin:initial_block
    end // block: main_checking
       
       begin
-	 teal::vlog v = teal::vlog_get ();
+`ifdef ncsim
+	   teal::vlog v;
+	   v = teal::vlog_get ();
+`else
+	   teal::vlog v = teal::vlog_get ();
+`endif
 	 if (v.how_many (teal::vout_error)) begin
 	    log.info ($psprintf ("Test Failed: Contained %0d error(s).",  v.how_many (teal::vout_error)));
 	 end
