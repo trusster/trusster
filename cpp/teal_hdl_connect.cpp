@@ -41,7 +41,7 @@ void force_memory_reference () {
 }
 #else
 #if defined (vpi_2_0)
-void (*vlog_startup_routines[]) () = {teal::teal_top_register, teal_memory_note_register, 0};
+void (*vlog_startup_routines[]) () = {teal_top_register, teal_memory_note_register, 0};
 #if defined (cver)
 extern "C" { extern void vpi_compat_bootstrap(void);}
   extern "C" { 
@@ -65,7 +65,7 @@ s_tfcell veriusertfs[] =
 {
   //type, data, check, size, call, misc, verilog name, ...
   { usertask, 0, 0, 0, (p_tffn)teal_top_call, 0, "$verification_top", 0, 0, 0 },
-  { usertask, 0, 0, 0, (p_tffn)teal_memory_note_call, 0, "$teal_memory_note", 0, 0, 0 },
+  { usertask, 0, 0, 0, (p_tffn)teal_memory_note_call_1_0, 0, "$teal_memory_note", 0, 0, 0 },
   {0} /*** final entry must be 0 ***/
 };
 #if defined (cver)

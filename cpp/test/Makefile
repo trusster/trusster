@@ -107,7 +107,7 @@ ifeq ($(SIM),ivl)
   CFLAGS = -Wall $(OPT) $(D_OPT) -Dvpi_2_0 -DSIM=ivl -Divl
 else
 ifeq ($(SIM),ncsim)
-  CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=ncsim -Dncsim
+  CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=ncsim -Dncsim -Dvpi_2_0 
 else
 ifeq ($(SIM),vcs)
   CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=vcs -Dvcs
@@ -159,7 +159,8 @@ ifeq ($(SIM),ivl)
 	iverilog -m./$@ -o $(TEST) -s top $(TEST).v
 endif
 ifeq ($(SIM),ncsim)
-	$(SYS_ARCH_CC) $(ARCH_RELOCATE_OPT) $(TEST).o -o libpli.so $(SP)  -L.. -L/usr/local/lib  -L. ../libteal.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
+#	$(SYS_ARCH_CC) $(ARCH_RELOCATE_OPT) $(TEST).o -o libpli.so $(SP)  -L.. -L/usr/local/lib  -L. ../libteal.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
+	$(SYS_ARCH_CC) $(ARCH_RELOCATE_OPT) $(TEST).o -o libvpi.so $(SP)  -L.. -L/usr/local/lib  -L. ../libteal.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
 endif
 ifeq ($(SIM),vcs)
 	$(SYS_ARCH_CC) $(ARCH_RELOCATE_OPT) $(TEST).o -o $@ $(SP)  -L.. -L/usr/local/lib  ../libteal.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)

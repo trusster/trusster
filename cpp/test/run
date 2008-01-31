@@ -102,6 +102,7 @@ foreach $test (@test_list) {
     }
   }
   elsif ($ncsim) {
+irun	vrandom_test.sv 	vrandom_test.v	-f hdl_paths.ncsim +define+PURE=extern	+define+ncsim=1	+out_file+vrandom_test_results.txt
       system ("mkdir ncvlog_lib");
       system ("echo DEFINE ncvlog_lib ./ncvlog_lib > cds.lib");
       system ("ncvlog $test.v -WORK ncvlog_lib");
@@ -111,6 +112,7 @@ foreach $test (@test_list) {
       system ("ncelab -REDUCE_MESSAGES -NOCOPYRIGHT -ARR_ACCESS -ACCWARN -LIBNAME ncvlog_lib -LOGFILE ncelab.log -access +RWC ncvlog_lib.top -SNAPSHOT ncvlog_lib.ncvlog_lib:ncvlog_lib");
       system ("ncsim top");
       $run_command = "ncsim -REDUCE_MESSAGES -NOCOPYRIGHT -ACCWARN -RUN -LOGFILE ncsim.log ncvlog_lib.ncvlog_lib:ncvlog_lib +out_file+$results_file"
+#      $run_command = "ncsim -REDUCE_MESSAGES -NOCOPYRIGHT -ACCWARN -RUN -LOGFILE ncsim.log ncvlog_lib.ncvlog_lib:ncvlog_lib +out_file+$results_file -loadvpi libvpi:teal_top_register -loadvpi libvpi:teal_memory_note_register"
   }
   elsif ($vcs) {
       system ("vcs +acc+1 +cli+4 -P pli.tab $test.v $test.$SIM.so " );

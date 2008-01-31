@@ -70,29 +70,15 @@ private:
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
 #if defined (vcs)
-extern "C" void teal_memory_note_call (int user_data, int reason);
-void teal_memory_note_call (int user_data, int reason)
-{
-    //Is there an easier way?
-  vpiHandle my_call = vpi_handle (vpiSysTfCall, 0);
-  //ASSERT (my_call);
-  vpiHandle it = vpi_iterate (vpiArgument, my_call);
-  vpiHandle first_arg = vpi_scan (it); //could make it a loop, but how to do in 1.0?
-  //check type?
-  banks_.push_back (new regular_memory_bank_2_0 (first_arg));
-}
-
+void teal_memory_note_call_2_0 (int user_data, int reason)
 #else
-///////////////////////////////////////////////
-///////////////////////////////////////////////
-int teal_memory_note_call (char*)
+int teal_memory_note_call_2_0 (char*)
+#endif
 {
     //Is there an easier way?
   vpiHandle my_call = vpi_handle (vpiSysTfCall, 0);
-  //ASSERT (my_call);
   vpiHandle it = vpi_iterate (vpiArgument, my_call);
   vpiHandle first_arg = vpi_scan (it); //could make it a loop, but how to do in 1.0?
-  //check type?
   banks_.push_back (new regular_memory_bank_2_0 (first_arg));
   return 0;
 }
@@ -105,14 +91,16 @@ void teal_memory_note_register ()
   task_data.type = vpiSysTask;
   task_data.tfname = "$teal_memory_note"; 
 #if defined (cver)
-  task_data.calltf = (p_tffn) teal_memory_note_call;
+  task_data.calltf = (p_tffn) teal_memory_note_call_2_0;
 #else
-  task_data.calltf = teal_memory_note_call;
+  task_data.calltf = teal_memory_note_call_2_0;
 #endif
   task_data.compiletf = 0;
   vpi_register_systf (&task_data);
 }
-#endif
+
+//extern "C" void teal_memory_note_call_1_0 (int,int);
+//void teal_memory_note_call_1_0 (int user_data, int reason) {assert (0);}
 
 #else
 //PLI 1.0 Land!!!
@@ -149,8 +137,8 @@ private:
 
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
-extern "C" void teal_memory_note_call (int,int);
-void teal_memory_note_call (int user_data, int reason)
+//extern "C" void teal_memory_note_call_1_0 (int,int);
+void teal_memory_note_call_1_0 (int user_data, int reason)
 {
   banks_.push_back (new regular_memory_bank (tf_mipname()));
 }

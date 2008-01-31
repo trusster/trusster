@@ -93,9 +93,20 @@ extern void verification_top ();
 #if defined (vpi_2_0)
 extern "C" void teal_memory_note_register ();
 #else
-extern "C" void teal_memory_note_call (int,int);
+extern "C" void teal_memory_note_call_1_0 (int,int);
 #endif
 
+  //These two functions, one for pli and the other for vpi, must be put into
+    //a startup task list. See the tests directory for examples.
+//They need to be global as ncsim looks them up from the .so symbol table
+#if defined (vpi_2_0)
+  extern "C" void teal_top_register ();
+#else
+  /////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////
+  //This is the function that should be called by an initial block
+  extern "C" void teal_top_call (int user_data, int reason);
+#endif
 
 class regular_memory_bank;
 
@@ -107,6 +118,9 @@ class regular_memory_bank;
   ////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////
+
 
 namespace teal {
   /////////////////////////////////////////////////////
@@ -114,18 +128,6 @@ namespace teal {
   //Used to correlate Docs, cvs tags, and dowlowads
   extern std::string teal_version;
 
-  /////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////
-  //These two functions, one for pli and the other for vpi, must be put into
-    //a startup task list. See the tests directory for examples.
-#if defined (vpi_2_0)
-  extern "C" void teal_top_register ();
-#else
-  /////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////
-  //This is the function that should be called by an initial block
-  extern "C" void teal_top_call (int user_data, int reason);
-#endif
 
   typedef unsigned char uint8;
   typedef unsigned int uint32;

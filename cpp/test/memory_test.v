@@ -138,7 +138,7 @@ reg memory_change;
  	  clk <= ~clk; 
   end
 
-   initial $teal_top;
+   initial $verification_top;
 
 endmodule 
 

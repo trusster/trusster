@@ -43,7 +43,10 @@ ifeq ($(SIM),ivl)
   CFLAGS = -Wall  $(OPT) $(D_OPT) -Dvpi_2_0 -DSIM=ivl -Divl
 else
 ifeq ($(SIM),ncsim)
-  CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=ncsim -Dncsim
+  CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=ncsim -Dncsim -Dvpi_2_0 
+else
+ifeq ($(SIM),ncsim_2_0)
+  CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=ncsim -Dncsim -Dvpi_2_0
 else
 ifeq ($(SIM),vcs_2_0)
   CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=vcs -Dvcs -Dvpi_2_0
@@ -64,6 +67,7 @@ ifeq ($(SIM),aldec_2_0)
   CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=aldec -Daldec -Dvpi_2_0
 else
   CFLAGS = "Unknown Simulator type!"
+endif
 endif
 endif
 endif

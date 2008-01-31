@@ -105,9 +105,10 @@ module top;
    end
    initial 
       begin
-	 $teal_top;
+	 $verification_top;
       end 
    
+`define hjklhjkhjkl
 `ifdef hjklhjkhjkl
    reg keep_alive;
     initial

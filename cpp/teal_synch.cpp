@@ -35,6 +35,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace teal;
 //TO do: cobbler's shoes - make a simple mutex_t sentry and use it!!!
 
+//when its unsafe to use teal's logger
+#define MARK std::cout << __FILE__ << " " << __LINE__ << std::endl;
+
 #if defined (WIN32)
   bool operator== (const pthread_t& lhs, const pthread_t& rhs) {
     return lhs.p == rhs.p;
@@ -391,6 +394,13 @@ int  the_vpi_callback (s_cb_data* the_s_cb_data)
     return 0;
   }
 #endif
+  sim_time_  = ((uint64)the_s_cb_data->time->high << 32) + the_s_cb_data->time->low;
+
+  if (synch_chatty_) {
+    local_vout << teal_info << "time high is " << the_s_cb_data->time->high << " time low is " 
+	       << the_s_cb_data->time->low 
+	       << " type is " << the_s_cb_data->time->type << endm; 
+  }
   return the_generic_callback ((vreg_match*)the_s_cb_data->user_data);
 }
 
@@ -543,7 +553,7 @@ void teal::finish () {
       //      local_vout << teal_info << "teal thread_release waiting for all waiting." << endm;
       pthread_cond_wait (&thread_release::all_waiting, &thread_release::main_mutex);
     } while (!thread_release::really_all_waiting);
-    //  pthread_mutex_unlock (&thread_release::main_mutex); 
+      pthread_mutex_unlock (&thread_release::main_mutex); 
 
 #if defined (vpi_2_0)
     vpi_control (vpiFinish);
@@ -572,7 +582,8 @@ void teal::at (const sensitivity& s)
    static s_vpi_value no_value;
    static s_vpi_time no_time;
    no_value.format = vpiSuppressVal;
-   no_time.type = vpiSuppressTime;
+   //   no_time.type = vpiSuppressTime;
+   no_time.type = vpiSimTime;
    //   no_value.format = vpiScalarVal;
    //   no_time.type = vpiSimTime;
    //   call_back.index = 0;
@@ -648,12 +659,6 @@ std::string teal::thread_name (pthread_t id)
 }
 
 
-#if defined (ncsimXXX)
-extern "C" void teal_top_call ();
-#else
-extern "C" void teal_top_call (int,int);
-#endif
-
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 //
@@ -722,9 +727,9 @@ int teal_top_internal (char*)
   
   pthread_create (&id, &attributes, main_watcher, (size_t*)&main_id);  
   local_vout << teal_info << "teal_top: Started main watcher thread. id:" << thread_int (main_id) << endm;
-
   
   pthread_mutex_lock (&thread_release::main_mutex);
+
   //  if (thread_release::threads_waiting.size ()) { 
   //    thread_release::print_threads_ ("Initial thread list:");
     while (! thread_release::really_all_waiting) {
@@ -733,6 +738,7 @@ int teal_top_internal (char*)
       //      pthread_cond_signal (&thread_release::rescan_thread_list);
       //  local_vout << teal_info << "Thread " << thread_release::thread_name_ (pthread_self()) << " waiting on start condition. " << endm;
       pthread_cond_wait (&thread_release::all_waiting, &thread_release::main_mutex);
+      //      MARK;
       //    thread_release::print_threads_ ("Initial thread list after wakeup:");
     }
     //  }
@@ -749,11 +755,11 @@ int teal_top_internal (char*)
 
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
-void teal::teal_top_register ()
+void teal_top_register ()
 {
   s_vpi_systf_data task_data = {0};
   task_data.type = vpiSysTask;
-  task_data.tfname = "$teal_top";
+  task_data.tfname = "$verification_top";
 #if defined (cver)
   task_data.calltf = (p_tffn) teal_top_internal;//0;
 #else
@@ -762,20 +768,34 @@ void teal::teal_top_register ()
   task_data.compiletf = 0;//teal_top_internal;
   vpi_register_systf (&task_data);
 }
-#else
+
+
+#if 0
+
+//specific to ncsim muck
+extern "C" void teal_register_ncsim ();
+void teal_register_ncsim () {
+
+}
+#endif
+
+#endif
+
 #if defined (cverX)
+extern "C" void teal_top_call ();
 void teal_top_call ()
 #else
-#if defined (ncsimXXX)
+#if defined (ncsim)
+extern "C" void teal_top_call ();
   void teal_top_call ()
 #else
+extern "C" void teal_top_call (int,int);
 void teal_top_call (int user_data, int reason)
 #endif
 #endif
 {
   teal_top_internal (0);
 }
-#endif
 
 
 ////////////////////////////////////////////////////////////////
@@ -789,11 +809,15 @@ uint64 teal::vtime ()
 
 #if !defined (teal_printf_io)
 #  if defined (vpi_2_0)
+#if defined (ncsim)
+  returned = sim_time_;
+#else
   //  int high(0);
   s_vpi_time here_and_now;
   here_and_now.type = vpiSimTime;
   vpi_get_time (0, &here_and_now);
   returned  = ((uint64)here_and_now.high << 32) + here_and_now.low;
+#  endif
 #  else
 #if defined (ncsim)
   returned = sim_time_;

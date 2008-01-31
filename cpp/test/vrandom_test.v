@@ -20,13 +20,49 @@
 `timescale 1 ps / 1 ps
 
 module top;
-   initial $teal_top;
+   initial begin
+	#10;
+	$verification_top;
+end
+
   reg[7:0] run_test;
   initial begin
 	run_test = 0;
 	#44;
 	run_test = 'b1000_0000;
    end
+
+ reg clk;
+  initial begin
+	clk <= 0;
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+	 #10;
+ 	  clk <= ~clk; 
+$display ("yaya");
+  end
 
 
 endmodule 

@@ -76,7 +76,7 @@ module top;
       end
 
 
-   initial $teal_top;
+   initial $verification_top;
 
    reg init_done;
    initial begin

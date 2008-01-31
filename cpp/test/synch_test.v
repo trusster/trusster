@@ -68,7 +68,7 @@ module top;
 
    initial 
       begin
-	 $teal_top;
+	 $verification_top;
       end 
 
    integer k;

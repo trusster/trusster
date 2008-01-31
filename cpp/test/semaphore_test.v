@@ -69,7 +69,7 @@ module top;
    initial 
       begin
 	#1
-	 $teal_top;
+	 $verification_top;
       end 
 
    integer k;
