@@ -40,8 +40,7 @@ namespace alu {
 
   class generator {
   public:
-    generator (const std::string& n) : 
-      name (name_), name_ (n), log_ (name) {};
+    generator (const std::string& n) : name (name_), log_ (n), name_ (n) {};
     virtual ~generator () {}
 
     void do_operations (teal::uint32 count);
@@ -50,13 +49,13 @@ namespace alu {
 
   protected:
     virtual void do_operations_ (const std::vector<operation>&) = 0;
+    teal::vout log_;
 
   private:
     generator (const generator&);
     generator& operator= (const generator&);
 
     std::string name_;
-    teal::vout log_;
   };
 
 };

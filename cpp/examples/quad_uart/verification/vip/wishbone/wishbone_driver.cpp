@@ -60,6 +60,7 @@ wishbone::wishbone_driver::wishbone_driver (const std::string& n, truss::port <c
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   void wishbone::wishbone_driver::write8 (teal::uint32 a, const teal::reg& d) {
+    log_ << teal_info << "about to get mutex Addr " << hex << a << " data " << d << endm;
     teal::mutex_sentry guard (mutex_);
     log_ << teal_info << "about to execute got mutex Addr " << hex << a << " data " << d << endm;
     op_code_ = 0;

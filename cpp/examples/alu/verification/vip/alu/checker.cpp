@@ -48,7 +48,7 @@ alu::checker::checker (const std::string& name, generated* g, actual* a) :
 void alu::checker::start_ ()
 {
   for (;;) {
-    log_ << teal_debug << " wait for an generated " << endm;;
+    log_ << teal_debug << " wait for a generated " << endm;;
     operation generated = generated_->get ();
     log_ << teal_debug << " Got generated value of " << generated << " Now wait for an actual. " << endm;;
     teal::uint32 actual = actual_->get ();
@@ -72,6 +72,7 @@ void alu::checker::start_ ()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void alu::checker::wait_for_completion ()
 {
+  log_ << teal_debug << " wait for completion " << endm;;
   completed_flag_.wait ();
   completed_ = true;
 }

@@ -248,7 +248,8 @@ if ($options{"hdl_compile"}){
 				"$ENV{\"TEAL_HOME\"}/libteal.$ENV{\"SIM\"}.a " . 
 				"-L/usr/local/lib -lstdc++ -lpthread -shared " . 
 #need to get real so name to nc command line
-				"-o $RESULT_DIR/libpli.so "); #make sure "." is on LD_LIBRARY_PATH or PATH, 
+#				"-o $RESULT_DIR/libpli.so "); #make sure "." is on LD_LIBRARY_PATH or PATH, 
+				"-o $RESULT_DIR/libvpi.so "); #make sure "." is on LD_LIBRARY_PATH or PATH, 
     truss_system("$building_shared_library");
 
     $compile_hdl = ("cd $RESULT_DIR; mkdir ncvlog_lib; " . 

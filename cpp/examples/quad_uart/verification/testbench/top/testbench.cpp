@@ -49,8 +49,8 @@ using namespace truss;
 
 testbench::testbench (const std::string top_path) : truss::testbench_base ("testbench"), top_ (top_path)
 {
-  //log_.show_debug_level (99);   
-  log_ << teal_debug << "testbench new() begin " << teal::endm;
+  log_.show_debug_level (99);   
+  log_ << teal_info << "testbench new() begin " << teal::endm;
 
   for (teal::uint32 i(0); i < number_of_uarts; ++i) {
     uart_interface[i] = new uart::interface (top_path, i);

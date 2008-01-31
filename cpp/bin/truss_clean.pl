@@ -34,6 +34,8 @@ sub truss_clean{
 	$clean_hdl_command = "cd $RESULT_DIR; rm -rf hdl/*";}
       elsif (uc ($ENV{SIM}) eq "IVL") { 
 	$clean_hdl_command = "cd $RESULT_DIR; rm -rf hdl/*";}
+      elsif (uc ($ENV{SIM}) eq "NCSIM") { 
+	$clean_hdl_command = "cd $RESULT_DIR; rm -rf hdl/*";}
       else {$clean_hdl_command = "Error! Unknown Simulator\n";}
       truss_system ($clean_hdl_command);
     }

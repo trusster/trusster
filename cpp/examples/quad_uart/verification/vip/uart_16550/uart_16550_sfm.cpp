@@ -191,6 +191,7 @@ void uart::uart_16550_sfm::write_to_hardware ()
   data = 0;
   truss_field_put (data, interrupt_enable_receive, 1)
   truss_reg_write8 (bus_address (UART_REG_IE), data); 
+  log_ << teal_debug << " DDDDDDDDD HACK" << teal::hex << one_bit_ << teal::endm;
 
   //set flow control trigger level
   data = 0;

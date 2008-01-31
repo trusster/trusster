@@ -57,7 +57,8 @@ module top;
 
    initial 
      begin
-	$display ("%t Starting Truss", $time);
+	$display ("%t 123 Starting Truss", $time);
+#100;
 	$verification_top;
      end
 

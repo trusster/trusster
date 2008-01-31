@@ -64,6 +64,7 @@ void alu::generator::do_operations (teal::uint32 count)
   truss_assert (count);
   std::vector<operation> operations;
   for (unsigned int i(0); i < count; ++i) {
+    log_ << teal_info << "gen a rand operation " << i << " out of " << count << teal::endm;
     static uint32 min_operand_a = dictionary::find (name + "_min_operand_a", 0x032862);
     static uint32 max_operand_a = dictionary::find (name + "_max_operand_a", 0x41062);
     uint32 operand_a = get_operand_a (min_operand_a, max_operand_a);

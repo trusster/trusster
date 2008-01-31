@@ -37,6 +37,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "checker.h"
 
+#define truss_mark       log_ << teal_debug  << teal::endm
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   testbench::testbench (const std::string top_path) : truss::testbench_base ("testbench"), top_ (top_path)
@@ -46,7 +48,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       log_ << teal_debug << "testbench new() begin " << teal::endm;
 
       truss::channel<alu::operation>* to_chip = new truss::channel<alu::operation>   ("alu to_chip");
-      generator                 = new alu::generator_agent ("driver_generator_0", to_chip);
+
 
       truss::port<alu::driver_configuration::signals>::pins driver_wires;
       driver_wires [alu::driver_configuration::operand_a] = top_ + ".operand_a";
@@ -58,13 +60,22 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
       driver                       = new alu::driver_agent       ("alu_driver_0", driver_wires, to_chip);
 
+      truss_mark;
+      generator                 = new alu::generator_agent ("driver_generator_0", to_chip);
+
+      truss_mark;
+
       truss::channel<alu::operation>* to_chip_copy = new truss::channel<alu::operation> ("alu to_chip checker");
       to_chip->add_listner (to_chip_copy);
 
       truss::channel<teal::uint32>* from_chip = new truss::channel<teal::uint32>   ("alu from chip");
       truss::port<alu::monitor_configuration::signals>::pins monitor_wires;
+      log_ << teal_debug  << teal::endm;
+
       monitor_wires [alu::monitor_configuration::operation_done] = top_ + ".operation_done";
       monitor_wires [alu::monitor_configuration::result] = top_ + ".result";
+
+      log_ << teal_debug  << teal::endm;
       monitor                     = new alu::monitor_agent ("alu_monitor_0",   monitor_wires, from_chip);
       checker                     = new alu::checker ("alu_checker_0",   to_chip_copy, from_chip);
 
@@ -97,7 +108,10 @@ const teal::uint32 reset_count = 10;
     teal::vreg reset (top_ + ".reset");
     teal::vreg clock (top_ + ".clock");
     reset = 1;
-    for (teal::uint32 i(0); i < reset_count; ++i) teal::at (teal::posedge (clock));
+    for (teal::uint32 i(0); i < reset_count; ++i) {
+      log_ << teal_info << " reset clock count " << i << teal::endm;
+      teal::at (teal::posedge (clock));
+    }
     reset = 0;
   }
 

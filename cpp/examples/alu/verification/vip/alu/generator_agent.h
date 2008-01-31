@@ -45,6 +45,7 @@ namespace alu {
 
   protected:
     virtual void do_operations_ (const std::vector<operation>& ops) {
+      log_ << teal_info << " put operation into channel " << teal::endm;
       for (std::vector<operation>::const_iterator it (ops.begin()); it != ops.end (); ++it) {
 	out_->put (*it);
       };

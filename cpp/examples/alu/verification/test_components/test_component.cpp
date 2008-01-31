@@ -106,7 +106,7 @@ void alu::test_component::start_components_ ()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void alu::test_component::generate () 
 {
-  log_ << teal_debug << "alu::test_component::generate number of opertaions is " << dec << number_of_operations_ << endm;
-  generator_->do_operations (number_of_operations_);
+   log_ << teal_debug << "alu::test_component::generate number of operations is " << dec << number_of_operations_ << endm;
+   generator_->do_operations (number_of_operations_);
 }
 

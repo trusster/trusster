@@ -53,12 +53,8 @@ void alu_test::time_zero_setup () {test_component_->time_zero_setup ();}
 
 void alu_test::out_of_reset (reset r) {test_component_->out_of_reset (r);}
 void alu_test::randomize () {test_component_->randomize ();}
-void alu_test::write_to_hardware () {
-  test_component_->write_to_hardware ();
-}
-void alu_test::start () {
-  test_component_->start ();
-}
+void alu_test::write_to_hardware () {  test_component_->write_to_hardware ();}
+void alu_test::start () {  test_component_->start ();}
 void alu_test::stop () {test_component_->stop (); }
 void alu_test::wait_for_completion () {test_component_->wait_for_completion ();}
 void alu_test::report (const std::string prefix) const {test_component_->report (prefix);}

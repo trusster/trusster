@@ -33,7 +33,7 @@ ifeq ($(SIM),ivl)
   CFLAGS =  -Dvpi_2_0 -DSIM=ivl -Divl
 else
 ifeq ($(SIM),ncsim)
-  CFLAGS =  -DSIM=ncsim -Dncsim
+  CFLAGS =  -DSIM=ncsim -Dncsim -Dvpi_2_0 
 else
 ifeq ($(SIM),vcs)
   CFLAGS =  -DSIM=vcs -Dvcs

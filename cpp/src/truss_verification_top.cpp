@@ -168,7 +168,7 @@ void verification_top ()
     log << teal_debug << "About to report" << teal::endm;
     a_shutdown->shutdown_now ("Final Report: ");
 }
-std::string truss::truss_version = "teal_1.50a";
+std::string truss::truss_version = "truss_1.50a";
 
 #include "teal_hdl_connect.cpp"
 
