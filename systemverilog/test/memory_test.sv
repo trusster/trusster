@@ -39,7 +39,7 @@ interface memory_1 (
    input 
  `else
 `ifdef ncsim
-//  output
+input
 `else
    output 
 `endif
@@ -53,7 +53,7 @@ interface memory_2 (
   input
 `else		    
 `ifdef ncsim
-//	output
+input
 `else
    output 
 `endif
