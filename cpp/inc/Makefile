@@ -27,7 +27,8 @@ ifeq ($(SIM),mti_2_0)
   CFLAGS =  -Dvpi_2_0 -DSIM=mti
 else
 ifeq ($(SIM),mti)
-  CFLAGS =  -DSIM=mti
+#make all mti use 2_0
+  CFLAGS =  -DSIM=mti -Dvpi_2_0
 else
 ifeq ($(SIM),ivl)
   CFLAGS =  -Dvpi_2_0 -DSIM=ivl -Divl
