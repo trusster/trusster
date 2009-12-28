@@ -3,7 +3,7 @@
 
 #This file is part of the White Toolbox Library.  
 
-ROOT_INCL = -I$(SIMULATOR_HOME)/include -I$(SIMULATOR_HOME)/pli_incs -I$(SIMULATOR_HOME)/pli/interface
+ROOT_INCL = -I$(SIMULATOR_HOME)/include  
 
 #default directory structure
 SRC = .
@@ -28,7 +28,7 @@ ifeq ($(SIM),mti_2_0)
 else
 ifeq ($(SIM),mti)
 #make all mti use 2_0
-  CFLAGS =  -DSIM=mti -Dvpi_2_0
+  CFLAGS =  -DSIM=mti -Dvpi_2_0 -I$(SIMULATOR_HOME)/include/systemc
 else
 ifeq ($(SIM),ivl)
   CFLAGS =  -Dvpi_2_0 -DSIM=ivl -Divl
@@ -124,6 +124,8 @@ clean:
 	rm -f *~
 	rm -f $(STATIC_LIB)
 
+
+#	sccom -scv  $(OPT) $(SRC)/$*.cpp -work truss_$(TEST) $(STD_OPT) $(ROOT_INCL)
 
 .cpp.o:
 	gcc -c -Wall -fPIC $(SRC)/$*.cpp -o $(OBJ)/$@ $(CFLAGS) $(STD_OPT)

@@ -85,7 +85,7 @@ namespace truss {
 	 void put_ (const data_type& d) 
 	  {
 	    if (size() >= depth_) {
-	      get_condition_.wait_now ();
+	      get_condition_.wait ();
 	    }
 	    teal::mutex_sentry foo (mutex_);
 	    	    log_ << teal_debug << "put: data is " << (int) (&d) << teal::endm;
@@ -107,7 +107,7 @@ namespace truss {
 	{
 	  log_ << teal_debug << "get: size is " << size () << teal::endm;
 	  while  (!size ()) {
-	    put_condition_.wait_now ();
+	    put_condition_.wait ();
 	        log_ << teal_debug << "get: after wait. size is " << size () << teal::endm;
 	    //	    TRUSS_ASSERT (size ());  --put back when in cpp
 	  }
@@ -133,7 +133,7 @@ namespace truss {
 	const teal::uint64& depth;
 
 
-	 std::string name_ () const {return put_condition_.name_;} 
+	 std::string name_ () const {return put_condition_.name();} 
 
 	 void add_listner (channel_put < data_type > * new_one) {
 	  truss_assert (new_one);
