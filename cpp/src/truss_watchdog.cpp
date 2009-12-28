@@ -37,7 +37,8 @@ using namespace teal;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 truss::watchdog::watchdog (const std::string& name, const std::string path, shutdown* a_shutdown) : 
   verification_component (name), thread (name), 
-  shutdown_ (a_shutdown), hdl_timeout_ (path + ".timeout"), hdl_timeout_count_ (path + ".counter"),
+  shutdown_ (a_shutdown), hdl_timeout_ (path + ".timeout", teal::vreg::observe_and_control), 
+  hdl_timeout_count_ (path + ".counter", teal::vreg::observe_and_control),
   timeout_occurred_ (false), hdl_timeout_occurred_ (false)
 {}
 
