@@ -86,30 +86,49 @@ namespace truss {
 };
 
 
+#define SC_THREAD2(class_name, func)                                                       \
+    declare_thread_process( func ## _handle,                                  \
+                            #func,                                            \
+                            class_name,                           \
+                            func )
+
+#include <scv.h>
 
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
-void verification_top ()
-{
-  std::string test_name = TEST_NAME;
+class verification_top : public sc_core::sc_module {
+public:
+  SC_CTOR (verification_top) 
+  {
+    elaboration();
+    SC_THREAD2 (verification_top, start_of_simulation_);
+  }
+
+private:
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void elaboration ()
+  {
+    teal::vout log ("verification_top:");
+    log.show_debug_level (99); 
+
+    log << teal_info << "This is truss version \"" << truss_version << "\"" << teal::endm;
+
+    std::string test_name = TEST_NAME;
     std::string file_name (teal::dictionary::find_on_command_line ("dictionary", test_name + ".cfg"));
-    teal::dictionary::read (file_name);   //In code, use deafult to allow the read in values to stand
+    teal::dictionary::read (file_name, false);   //In code, use deafult to allow the read in values to stand
 
     a_shutdown = new shutdown ("Shutdown"); //ptrs set up a few lines down, after all built
     teal::file_vlog not_used = teal::file_vlog (teal::dictionary::find ("out_file"), teal::dictionary::find ("interactive", true));
     truss::error_limit_vlog not_used_2 = truss::error_limit_vlog (teal::dictionary::find ("error_limit", 10), a_shutdown);
 
-    teal::vout log ("verification_top:"); 
-    log.show_debug_level (99); 
-
-    log << teal_info << "This is truss version \"" << truss_version << "\"" << teal::endm;
 
     std::string top = teal::dictionary::find_on_command_line ("truss_hdl_top", "top");
     if (top == "") top = "top";
 
-    testbench* testbench_0 = new testbench (top);  
-    watchdog*  watchdog_0 = new watchdog ("watchdog", top + ".watchdog",  a_shutdown); 
-    TEST* test_0 = new TEST (testbench_0, watchdog_0, teal::dictionary::find_on_command_line ("test_name", TEST_NAME)); 
+    testbench_0 = new testbench (top);  
+    watchdog_0 = new watchdog ("watchdog", top + ".watchdog",  a_shutdown); 
+    test_0 = new TEST (testbench_0, watchdog_0, teal::dictionary::find_on_command_line ("test_name", TEST_NAME)); 
 
     a_shutdown->test_ = test_0;
     a_shutdown->testbench_ = testbench_0;
@@ -119,15 +138,28 @@ void verification_top ()
 
     log << teal_debug << "Using dictionary file: " << file_name << teal::endm;
 
-    teal::vrandom::init_with_seed (teal::dictionary::find ("seed", SEED));
-    log << teal_info << "Using seed: " << teal::dec << teal::dictionary::find ("seed", SEED) << teal::endm;
- 
     //run the watchdog through its dance to make sure it catches any hang conditions
     watchdog_0->time_zero_setup ();
     watchdog_0->out_of_reset (verification_component::cold);
     watchdog_0->write_to_hardware ();
     watchdog_0->start ();
 
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  virtual void start_of_simulation_ () 
+  {
+    teal::vout log ("verification_top:"); 
+    log.show_debug_level (99); 
+
+    //How to fold in scv_random::get_global_seed () ???
+    teal::vrandom::init_with_seed (teal::dictionary::find ("seed", SEED));
+    log << teal_info << "Using seed: " << teal::dec << teal::dictionary::find ("seed", SEED) << teal::endm;
+    //How to not do this if using the scv seed?
+    //     scv_random::set_global_seed(teal::dictionary::find ("seed", SEED));
+ 
 
     log << teal_debug << "About to randomize" << teal::endm;
 
@@ -168,7 +200,13 @@ void verification_top ()
     log << teal_debug << "About to report" << teal::endm;
     a_shutdown->shutdown_now ("Final Report: ");
 }
+private:
+  testbench* testbench_0;
+  watchdog*  watchdog_0;
+  TEST* test_0;
+
+};
+
 std::string truss::truss_version = "truss_1.50a";
 
-#include "teal_hdl_connect.cpp"
-
+SC_MODULE_EXPORT (verification_top);
