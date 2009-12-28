@@ -37,11 +37,11 @@ using namespace teal;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 alu::driver::driver (const std::string& name, truss::port<driver_configuration::signals>::pins wires) :
   verification_component (name), 
-  operand_a_ (wires[driver_configuration::operand_a]),
-  operand_b_ (wires[driver_configuration::operand_b]),
-  op_code_   (wires[driver_configuration::op_code]),
-  op_valid_   (wires[driver_configuration::op_valid]),
-  op_done_   (wires[driver_configuration::op_done])
+  operand_a_ (wires[driver_configuration::operand_a], teal::vreg::observe_and_control),
+  operand_b_ (wires[driver_configuration::operand_b], teal::vreg::observe_and_control),
+  op_code_   (wires[driver_configuration::op_code], teal::vreg::observe_and_control),
+  op_valid_   (wires[driver_configuration::op_valid], teal::vreg::observe_and_control),
+  op_done_   (wires[driver_configuration::op_done], teal::vreg::observe_and_control)
 {  
   log_.show_debug_level (4); 
 }

@@ -61,6 +61,11 @@ class testbench : public truss::testbench_base {
   virtual void write_to_hardware ();
   virtual void wait_for_completion ();
   virtual void report (const std::string prefix) const;
+
+ private:
+  teal::vreg reset_;
+  teal::vreg clock_;
+
 };
 
 #endif

@@ -41,11 +41,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  testbench::testbench (const std::string top_path) : truss::testbench_base ("testbench"), top_ (top_path)
+testbench::testbench (const std::string top_path) : truss::testbench_base ("testbench"), top_ (top_path),
+						    reset_ (top_ + ".reset", teal::vreg::observe_and_control),
+						    clock_ (top_ + ".clock", teal::vreg::observe_only)
+
     {
       log_.show_debug_level (teal::debug);
 
-      log_ << teal_debug << "testbench new() begin " << teal::endm;
+      log_ << teal_debug << "testbench new() begin Top is: \"" << top_ << "\"" << teal::endm;
 
       truss::channel<alu::operation>* to_chip = new truss::channel<alu::operation>   ("alu to_chip");
 
@@ -95,8 +98,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    void testbench::time_zero_setup () {
     log_ << teal_debug << "time zero setup" << teal::endm;
-    teal::vreg reset (top_ + ".reset");
-    reset = 0;
+    reset_ = 0;
   };
 
 const teal::uint32 reset_count = 10;
@@ -105,14 +107,12 @@ const teal::uint32 reset_count = 10;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    void testbench::out_of_reset (reset r) {
     log_ << teal_debug << "out of reset" << teal::endm;
-    teal::vreg reset (top_ + ".reset");
-    teal::vreg clock (top_ + ".clock");
-    reset = 1;
+    reset_ = 1;
     for (teal::uint32 i(0); i < reset_count; ++i) {
       log_ << teal_info << " reset clock count " << i << teal::endm;
-      teal::at (teal::posedge (clock));
+      teal::at (teal::posedge (clock_));
     }
-    reset = 0;
+    reset_ = 0;
   }
 
 
