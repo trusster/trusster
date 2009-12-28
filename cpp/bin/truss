@@ -130,7 +130,7 @@ if ($options{"cpp_compile"}){
   #
   {
     print "\nCompiling truss\n";
-    $compiling_truss = "cd $ENV{TRUSS_HOME}/src; $MAKE " . ($options{"verbose"} ? "" : "-s") . " TEST=$options{\"test\"} INCL=\"-I$ENV{PROJECT_HOME}/verification/tests -I$ENV{PROJECT_HOME}/verification/testbench/$config -I$ENV{PROJECT_HOME}/verification/vip/uart -I$ENV{PROJECT_HOME}/verification/test_components -I$ENV{PROJECT_HOME}/verification/vip/wishbone -I$ENV{PROJECT_HOME}/verification/vip/uart_1655\"";
+    $compiling_truss = "cd $ENV{TRUSS_HOME}/src; $MAKE build_truss " . ($options{"verbose"} ? "" : "-s") . " TEST=$options{\"test\"} INCL=\" -I$ENV{PROJECT_HOME}/verification/tests -I$ENV{TRUSS_HOME}/inc -I$ENV{\"TEAL_HOME\"} -I$ENV{PROJECT_HOME}/verification/testbench/$config -I$ENV{PROJECT_HOME}/verification/test_components \" ";
     truss_system ($compiling_truss); 
   }
 }
@@ -147,6 +147,7 @@ if ($options{"hdl_compile"}){
   if (!(-e "$RESULT_DIR/hdl")) {mkdir "$RESULT_DIR/hdl";}
   if (uc $ENV{SIM} eq "MTI"){
     print "Building shared libary\n";
+#Hint do a "find $SIMULATOR_HOME -name "libsystemc*.a" and look for the one that matches your gcc version
     $building_shared_library = ("$CC -fPIC " . 
 				"$ENV{\"TRUSS_HOME\"}/src/truss_verification_top.o " .
 				"$ENV{\"TRUSS_HOME\"}/src/truss_watchdog.o ". 
@@ -154,15 +155,31 @@ if ($options{"hdl_compile"}){
 				"$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.$ENV{\"SIM\"}.a " .
 				"$ENV{\"PROJECT_HOME\"}/verification/test_components/test_components.$ENV{\"SIM\"}.a " . 
 				"$ENV{\"PROJECT_HOME\"}/verification/vip/vip.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"SIMULATOR_HOME\"}/linux/libsystemc_gcc32.a " .
 				"$ENV{\"TEAL_HOME\"}/libteal.$ENV{\"SIM\"}.a " .
-				"-L/usr/local/lib -lstdc++ -lpthread  -shared " .
+				" -lstdc++  -shared " .
 				"-o $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so ");
 
+
+    $building_shared_library = ("sccom -link " .
+#				"$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.o " .
+				"$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.$ENV{\"SIM\"}.a " .
+				"$ENV{\"PROJECT_HOME\"}/verification/test_components/test_components.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/vip/vip.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"SIMULATOR_HOME\"}/linux/libsystemc_gcc32.a " .
+				"$ENV{\"TEAL_HOME\"}/libteal.$ENV{\"SIM\"}.a " .
+#				"-l$ENV{\"TEAL_HOME\"}/libteal.mti.a -lib $ENV{\"TEAL_HOME\"}/teal " . 
+#				"-lib $ENV{\"TRUSS_HOME\"}/src/truss_$options{\"test\"} " .
+				"-work $RESULT_DIR/work ".
+				" ");
+    print "$building_shared_library\n";
     truss_system ("$building_shared_library"); 
     if (!(-e "$RESULT_DIR/work")){
       $create_mti_vlib = ("cd $RESULT_DIR; vlib work");
       truss_system ($create_mti_vlib); 
     }
+
+    print "\n Compiling testbench\n";
     $compile_hdl = ("cd $RESULT_DIR; vlog " . ($options{"verbose"} ? "" : "-quiet -nologo ") . "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.v -f $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.vc");
     truss_system ($compile_hdl);
   }
@@ -297,6 +314,7 @@ if ($options{"hdl_compile"}){
     }
 
 
+    print"\nCompiling testbench\n";
     $compile_hdl = ("cd $RESULT_DIR; iverilog -m$RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so -o $options{\"test\"} -s top $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.v -c $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.ivl");
     truss_system ($compile_hdl);
   }
@@ -321,12 +339,16 @@ if ($options{"run"}){
     #
     if (uc $ENV{SIM} eq "MTI"){
       $the_run_command = ("cd $RESULT_DIR; " .
-			  "vsim -c " .
+			  "vsim -c -t 1ns -novopt " .
+#			  "vsim -t 1ns  " .
 			  ($options{"verbose"} ? "" : "-quiet ") .
 			  "-do $ENV{\"PROJECT_HOME\"}/verification/bin/vsim.do " .
-			  "top -pli $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so " .
+			  "top verification_top " .
+#use the following for direct link
+#			  " -pli $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so " .
 			  "+seed+$this_seed " .
 			  "$dictionary_cmd " .
+#			  "-lib $ENV{\"TRUSS_HOME\"}/src/truss_$options{\"test\"} " .
 			  "$options{\"args_run\"} " .
 			  "+out_file+$result_file "
 			 );
