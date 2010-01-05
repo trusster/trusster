@@ -37,8 +37,8 @@ using namespace teal;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 truss::watchdog::watchdog (const std::string& name, const std::string path, shutdown* a_shutdown) : 
   verification_component (name), thread (name), 
-  shutdown_ (a_shutdown), hdl_timeout_ (path + ".timeout", teal::vreg::observe_and_control), 
-  hdl_timeout_count_ (path + ".counter", teal::vreg::observe_and_control),
+  shutdown_ (a_shutdown), hdl_timeout_ (path + ".timeout", 1, teal::vreg::observe_and_control), 
+  hdl_timeout_count_ (path + ".counter", 64, teal::vreg::observe_and_control),
   timeout_occurred_ (false), hdl_timeout_occurred_ (false)
 {}
 
@@ -63,7 +63,7 @@ void truss::watchdog::start_ () {
   uint32 value = teal::dictionary::find (name + "_timeout", 10000000);
   teal::vout x (name);
   //  x << teal_info << "  setting " << teal::dec << hdl_timeout_count_ << " to "  << value << teal::endm;
-  x << teal_info << "  Using Timeout of " << teal::dec << value << teal::endm;
+  x << teal_info << "  Using " << name << "_timeout of " << teal::dec << value << teal::endm;
   hdl_timeout_count_ = value;
   at (posedge (hdl_timeout_));
   hdl_timeout_occurred_ = true;

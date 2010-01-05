@@ -7,8 +7,10 @@ SRC = .
 STATIC_LIB  = $(LIB)/truss.$(SIM).a
 SRCS = \
            $(SRC)/truss_watchdog.cpp \
-           $(SRC)/truss_verification_top.cpp \
-	   $(PROJECT_HOME)/verification/tests/$(TEST).cpp
+           $(SRC)/truss_verification_top.cpp 
+
+
+#	   $(PROJECT_HOME)/verification/tests/$(TEST).cpp
 
 TRUSS_OBJ = ${addsuffix .o, ${basename ${SRCS}}}
 
