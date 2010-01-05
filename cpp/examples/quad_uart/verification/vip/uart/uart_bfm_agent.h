@@ -46,9 +46,16 @@ namespace uart {
 
     void add_word (const word& w) {words_.push_back (w);}
 
+    teal::vout& operator<< (teal::vout&) const;
+
     std::deque<uart::word> words_;
     teal::uint32 block_delay_;
   };
+
+  inline teal::vout& operator<< (teal::vout& c, const block& rhs) {
+    return rhs.operator<< (c); //let virtual function take over
+  }
+
 
   ////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////

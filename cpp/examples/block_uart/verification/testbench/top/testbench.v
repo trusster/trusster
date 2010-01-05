@@ -40,8 +40,9 @@ module top;
    initial CTS = 1;
    initial RTS = 0;
 
-//   pullup (TX);
-//   pullup (RX);
+   pullup (TX);
+   pullup (RX);
+
 
    reg 	wb_clockr;
    reg 	wb_rst_ir;
@@ -127,10 +128,10 @@ module top;
 
    initial 
      begin
-	#1000;
+//	#1;
 	RTS = 1;
-	$display ("%t Starting Truss", $time);
-	$verification_top;
+//	$display ("%t Starting Truss", $time);
+//	$verification_top;
      end
 
 

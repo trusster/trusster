@@ -39,8 +39,8 @@ uart::uart_16550_sfm::uart_16550_sfm (const std::string& name,   teal::uint32 id
 				    const uart::configuration* c, teal::uint64 clock_frequency) :
   verification_component (name), 
   multi_thread (name),
-  interrupt_request_ (port[uart::configuration_16550::interrupt]),
-  baud_rate_clock_   (port[uart::configuration_16550::reference_clock]),
+  interrupt_request_ (port[uart::configuration_16550::interrupt], 1, teal::vreg::observe_only),
+  baud_rate_clock_   (port[uart::configuration_16550::reference_clock], 1, teal::vreg::observe_only),
   configuration_ (c),
   clock_frequency_ (clock_frequency),
   id_ (id)

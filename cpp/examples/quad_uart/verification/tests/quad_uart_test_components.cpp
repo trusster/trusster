@@ -76,14 +76,21 @@ quad_uart_test_components::quad_uart_test_components (testbench* tb, truss::watc
 {
   truss_assert (number_of_uarts >= 2); 
 
-  log_ << teal_info << "quad_uart_test_components::new() begin " << teal::endm;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void quad_uart_test_components::randomize () {
+  log_ << teal_info << "quad_uart_test_components::randomize() begin " << teal::endm;
 
   //now for the irretators...
   for (teal::uint32 i(0); i < number_of_uarts; ++i) {
     std::ostringstream o; o << i; 
     std::string id = o.str();
 
-    uart_test_component_ingress_[i] = new uart::basic_test_component ("uart_test_component_ingress " + id, 
+    uart_test_component_ingress_[i] = new uart::basic_test_component ("uart_test_component_ingress_" + id, 
 								      testbench_->uart_interface[i]->uart_ingress_generator,  
 								      testbench_->uart_interface[i]->uart_program_sfm, 
 								      testbench_->uart_interface[i]->uart_ingress_checker);
@@ -91,7 +98,7 @@ quad_uart_test_components::quad_uart_test_components (testbench* tb, truss::watc
     uart_test_component_ingress_[i]->randomize ();
 
 
-    uart_test_component_egress_[i] = new uart::basic_test_component ("uart_test_component_egress " + id, 
+    uart_test_component_egress_[i] = new uart::basic_test_component ("uart_test_component_egress_" + id, 
 								   testbench_->uart_interface[i]->uart_egress_generator, 
 								   testbench_->uart_interface[i]->uart_protocol_bfm, 
 								   testbench_->uart_interface[i]->uart_egress_checker);
@@ -101,14 +108,8 @@ quad_uart_test_components::quad_uart_test_components (testbench* tb, truss::watc
     standard_configuration (testbench_->uart_interface[i]->uart_configuration->name);
   }
 
-  log_ << teal_info << "quad_uart_test_components::new() end " << teal::endm;
+  log_ << teal_info << "quad_uart_test_components::raandomize() end " << teal::endm;
 }
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void quad_uart_test_components::randomize () {}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -159,8 +160,11 @@ void quad_uart_test_components::stop () {
 void quad_uart_test_components::wait_for_completion () {
   for (teal::uint32 i(0); i < number_of_uarts; ++i) {
     uart_test_component_ingress_[i]->wait_for_completion (); 
+    log_ << teal_info << "Ingres " << i << " completed" << teal::endm;
     uart_test_component_egress_[i]->wait_for_completion ();
+    log_ << teal_info << "engres " << i << " completed" << teal::endm;
   }
+    log_ << teal_info << "all completed" << teal::endm;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

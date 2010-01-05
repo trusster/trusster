@@ -34,6 +34,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace uart;
 using namespace teal;
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 uart::bfm_agent::bfm_agent (const std::string& name,       truss::port <configuration::signals>::pins port,
@@ -59,9 +60,9 @@ void uart::bfm_agent::receive_completed_ (const word& current_rx_word) {
 void uart::bfm_agent::do_tx_thread ()
 {
   for (;;) {
-    //    log_ << teal_debug << " about to get!" << teal::endm;
+        log_ << teal_debug << " about to get!" << teal::endm;
     block current_tx = to_be_transmitted_->get ();
-    //    log_ << teal_debug << " Block of " << current_tx.words_.size () << " words to be transmitted!" << teal::endm;
+        log_ << teal_debug << " Block of " << current_tx.words_.size () << " words to be transmitted!" << teal::endm;
     if (current_tx.block_delay_) { pause_ (one_bit_ * current_tx.block_delay_);  }
     for (std::deque<word>::iterator it (current_tx.words_.begin ()); (it != current_tx.words_.end ()); ++it) {
       send_word (*it);

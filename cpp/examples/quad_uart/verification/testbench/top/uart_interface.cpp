@@ -50,20 +50,20 @@ uart::interface::interface (const std::string& top, teal::uint32 index)
   std::string id = o.str();
 
   //build the channels of the bi-directional interface
-  uart::channel* program_egress = new uart::channel ("program egress " + id);
-  uart::channel* program_egress_tap = new uart::channel ("protocol egress tap " + id);
+  uart::channel* program_egress = new uart::channel ("program egress_" + id);
+  uart::channel* program_egress_tap = new uart::channel ("protocol egress tap_" + id);
   program_egress->add_listner (program_egress_tap);
 
-  uart::channel* program_ingress = new uart::channel ("program ingress " + id);
+  uart::channel* program_ingress = new uart::channel ("program ingress_" + id);
 
-  uart::channel* protocol_ingress = new uart::channel ("protocol ingress " + id);
-  uart::channel* protocol_ingress_tap = new uart::channel ("protocol ingress tap " + id);
+  uart::channel* protocol_ingress = new uart::channel ("protocol ingress_" + id);
+  uart::channel* protocol_ingress_tap = new uart::channel ("protocol ingress tap_" + id);
   protocol_ingress->add_listner (protocol_ingress_tap);
 
-  uart::channel* protocol_egress = new uart::channel ("protocol egress " + id);
+  uart::channel* protocol_egress = new uart::channel ("protocol egress_" + id);
 
   //build the configuration of the interface
-  uart_configuration = new uart::configuration_16550 ("Configuration " + id);
+  uart_configuration = new uart::configuration_16550 ("Configuration_" + id);
 
 
   //build the ports of the interface
@@ -82,15 +82,15 @@ uart::interface::interface (const std::string& top, teal::uint32 index)
   protocol_port[uart::configuration::tx] = top + ".uart_rx_" + id;
 
   //build the connection layer of the interface
-  uart_protocol_bfm = new uart::bfm_agent           ("uart Protocol " + id, protocol_port, uart_configuration, protocol_ingress, protocol_egress, UART_CLOCK_FREQUENCY);
-  uart_program_sfm   = new uart::uart_16550_agent ("16550 uart " + id, index, program_port,  uart_configuration, program_egress,   program_ingress,  UART_CLOCK_FREQUENCY);
+  uart_protocol_bfm = new uart::bfm_agent           ("uart_Protocol_" + id, protocol_port, uart_configuration, protocol_ingress, protocol_egress, UART_CLOCK_FREQUENCY);
+  uart_program_sfm   = new uart::uart_16550_agent ("16550_uart_" + id, index, program_port,  uart_configuration, program_egress,   program_ingress,  UART_CLOCK_FREQUENCY);
 
   //build and hookup the ingress and egress stimulus and scoreboards of the interface
-  uart_egress_generator = new uart::generator_agent ("egress_generator " + id, program_egress, &uart_configuration->data_size_);
-  uart_egress_checker = new uart::checker_agent ("egress checker " + id, program_egress_tap, protocol_egress);
+  uart_egress_generator = new uart::generator_agent ("egress_generator_" + id, program_egress, &uart_configuration->data_size_);
+  uart_egress_checker = new uart::checker_agent ("egress_checker_" + id, program_egress_tap, protocol_egress);
 
-  uart_ingress_generator = new uart::generator_agent ("ingress_generator " + id, protocol_ingress, &uart_configuration->data_size_);
-  uart_ingress_checker = new uart::checker_agent ("ingress checker " + id, protocol_ingress_tap, program_ingress);
+  uart_ingress_generator = new uart::generator_agent ("ingress_generator_" + id, protocol_ingress, &uart_configuration->data_size_);
+  uart_ingress_checker = new uart::checker_agent ("ingress_checker_" + id, protocol_ingress_tap, program_ingress);
 
 }
 

@@ -35,8 +35,8 @@ using namespace teal;
 
 alu::monitor::monitor (const std::string& name, truss::port<monitor_configuration::signals>::pins wires) :
   run_loop (name), log_ (name), 
-  operation_done_ (wires[monitor_configuration::operation_done], teal::vreg::observe_only),
-  result_ (wires[monitor_configuration::result], teal::vreg::observe_only)
+  operation_done_ (wires[monitor_configuration::operation_done], 1, teal::vreg::observe_only),
+  result_ (wires[monitor_configuration::result], 32, teal::vreg::observe_only)
 {  
   //  log_.show_debug_level (4); 
 }

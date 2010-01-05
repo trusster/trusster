@@ -1,3 +1,6 @@
+`timescale 1 ns / 1 ns
+
+
 module alu_top (
 		operand_a,
 		operand_b,
@@ -32,15 +35,15 @@ module alu_top (
       endcase
       #10;
 	operation_done_r <= 1;
-//      $display ("%t %m mark operation done.", $time);
+      $display ("%t %m mark operation done.", $time);
       #1;
       operation_done_r <= 0;
-//      $display ("%t %m mark operation not done.", $time);      
+      $display ("%t %m mark operation not done.", $time);      
    end
 
 
    //debug
-`ifdef rtl_debug
+//`ifdef rtl_debug
    always @(op_valid) begin
       $display ("%t %m op valid changed to %d", $time, op_valid);
 end
@@ -50,7 +53,7 @@ end
       operation_done_r = 0;
       $display ("%t %m mark operation not done.", $time);      
 end
-`endif
+//`endif
    
 endmodule // alu_top
 

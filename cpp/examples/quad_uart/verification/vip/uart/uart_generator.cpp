@@ -68,6 +68,7 @@ void uart::generator::send_block (uint32 num_words, uint32 block_delay)
     the_data.randomize (name_, a_bit_delay, a_bit_delay, 0, reg::max_value ((*word_size_)));
     the_block.add_word (the_data);
   }
+  log_ << teal_info << "Just generated: " << teal::endl << the_block << teal::endm;
   send_block_ (the_block);
 }
 

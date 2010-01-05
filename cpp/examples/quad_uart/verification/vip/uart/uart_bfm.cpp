@@ -76,7 +76,7 @@ bool uart::word::operator== (const word & w)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 teal::vout& uart::word::operator<< (teal::vout& v) const
 {
-  v << "delay of " << bit_start_delay << " status: " << status_ << " " << data;
+  v << "delay of " << teal::dec << bit_start_delay << " status: " << teal::hex << status_ << " " << data;
   return (v);
 }
       
@@ -106,7 +106,7 @@ void uart::word::randomize (const std::string& prefix,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Physical later
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -119,13 +119,13 @@ void uart::word::randomize (const std::string& prefix,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 uart::port::port (truss::port <configuration::signals>::pins strings) :
-  rx (strings[configuration::rx]),
-  tx (strings[configuration::tx]),
-  baud_rate_clock (strings[configuration::baud_rate_clock]),
-  dtr (strings[configuration::dtr]),
-  dsr (strings[configuration::dsr]),
-  cts (strings[configuration::cts]),
-  rts (strings[configuration::rts])
+  rx (strings[configuration::rx], 1, teal::vreg::observe_only),
+  tx (strings[configuration::tx], 1, teal::vreg::observe_and_control),
+  baud_rate_clock (strings[configuration::baud_rate_clock], 1, teal::vreg::observe_only),
+  dtr (strings[configuration::dtr], 1, teal::vreg::observe_and_control),
+  dsr (strings[configuration::dsr], 1, teal::vreg::observe_and_control),
+  cts (strings[configuration::cts], 1, teal::vreg::observe_and_control),
+  rts (strings[configuration::rts], 1, teal::vreg::observe_and_control)
 {}
 
 
@@ -148,7 +148,7 @@ uart::bfm::bfm (const std::string& name, truss::port <configuration::signals>::p
 				      const uart::configuration* c, uint64 clock_frequency) :
   verification_component (name),  multi_thread (name), configuration_ (c), port_ (p), clock_frequency_ (clock_frequency)
 {  
-  //  log_.show_debug_level (4); 
+  log_.show_debug_level (4); 
 }
 
 
@@ -199,7 +199,7 @@ void uart::bfm::do_rx_thread ()
       while (port_.rx == 1) {
 	pause_ (1);
       }
-      log_ << teal_debug << level (3) << " possible start bit (negedge found)" << endm;
+      //      log_ << teal_debug << level (3) << " possible start bit (negedge found)" << endm;
 #else
     //now wait for start bit..defined as a high (1) to low (0) transition (at least one bit wide)
     //but must assume that we are putting out the last stop bit (a low)
@@ -270,9 +270,9 @@ void uart::bfm::send_word (const word& current_tx)
 {
   log_ << teal_debug << " Word to be transmitted: " << current_tx << teal::endm;
   if (current_tx.bit_start_delay) {
-    //	log_ << teal_debug << "pause before tx " << dec << current_tx.bit_start_delay << endm;
+	log_ << teal_debug << "pause before tx " << dec << current_tx.bit_start_delay << endm;
     pause_ (one_bit_ * current_tx.bit_start_delay);
-    //	log_ << teal_debug << "after pause tx " << current_tx.bit_start_delay << endm;
+    	log_ << teal_debug << "after pause tx " << current_tx.bit_start_delay << endm;
   }
       
   //now dsr/dtr
@@ -338,11 +338,11 @@ void uart::bfm::send_word (const word& current_tx)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void uart::bfm::pause_ (uint32 count) 
 {
-  //  log_ << teal_debug << level (2) << " in pause for " << count << endm;
+  log_ << teal_debug << level (22) << " in pause for " << count << endm;
   for (uint32 i (count); i; --i) {
     at (posedge (port_.baud_rate_clock));
   }
-  //  log_ << teal_debug << level (2) << " return pause for " << count << endm;
+  log_ << teal_debug << level (22) << " return pause for " << count << endm;
 
 }
 
@@ -395,6 +395,7 @@ void uart::bfm::stop ()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void uart::bfm::write_to_hardware ()
 {
+  return; //hack for systemc and driver weirdness
   port_.tx = 1; 
   port_.dtr = 1;
   port_.dsr = 1;

@@ -37,11 +37,11 @@ using namespace teal;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 alu::driver::driver (const std::string& name, truss::port<driver_configuration::signals>::pins wires) :
   verification_component (name), 
-  operand_a_ (wires[driver_configuration::operand_a], teal::vreg::observe_and_control),
-  operand_b_ (wires[driver_configuration::operand_b], teal::vreg::observe_and_control),
-  op_code_   (wires[driver_configuration::op_code], teal::vreg::observe_and_control),
-  op_valid_   (wires[driver_configuration::op_valid], teal::vreg::observe_and_control),
-  op_done_   (wires[driver_configuration::op_done], teal::vreg::observe_and_control)
+  operand_a_ (wires[driver_configuration::operand_a], 32, teal::vreg::observe_and_control),
+  operand_b_ (wires[driver_configuration::operand_b], 32, teal::vreg::observe_and_control),
+  op_code_   (wires[driver_configuration::op_code], 8, teal::vreg::observe_and_control),
+  op_valid_   (wires[driver_configuration::op_valid], 1, teal::vreg::observe_and_control),
+  op_done_   (wires[driver_configuration::op_done], 1, teal::vreg::observe_only)
 {  
   log_.show_debug_level (4); 
 }
@@ -50,6 +50,7 @@ alu::driver::driver (const std::string& name, truss::port<driver_configuration::
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void alu::driver::send_operation (const operation& an_operation)
 {
+  log_ << teal_info << "Drive operation start" << teal::endm;
   operand_a_ = an_operation.operand_a;
   operand_b_ = an_operation.operand_b;
   op_code_   = an_operation.op_code;
@@ -57,6 +58,7 @@ void alu::driver::send_operation (const operation& an_operation)
   at (posedge (op_done_));
   op_valid_ = 0;
   at (negedge (op_done_));
+  log_ << teal_info << "Drive operation done" << teal::endm;
 }
 
 void alu::driver::time_zero_setup ()                       {log_ << teal_debug << " time_zero_setup" << teal::endm;}

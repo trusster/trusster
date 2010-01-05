@@ -63,7 +63,10 @@ module top;
       uart_dsr_3 = 0;
    end
    
-   
+   pullup (uart_rx_0);
+   pullup (uart_rx_1);
+   pullup (uart_rx_2);
+   pullup (uart_rx_3);
    
    //
    // CLOCK
@@ -123,20 +126,6 @@ module top;
    always #16.955 BAUD_RATE_CLOCK = ~BAUD_RATE_CLOCK;
 
    
-   //Standard startup code
-   initial 
-     begin
-	#1000;
-	$display ("%t Starting Truss", $time);
-	$verification_top;
-     end
-
-   reg[7:0] init_done;
-   initial begin
-      init_done = 0; 
-      init_done = #43 8'hFF;
-   end
-
 
    reg test_done;
    reg test_done_ack;
@@ -153,7 +142,7 @@ module top;
    wire timeout;
    watchdog watchdog (.timeout (timeout));
 
-//`define mfm_debug
+`define mfm_debug
 `ifdef mfm_debug
    always @(uart_tx_0) begin
       $display ("%t %m uart_tx_0 changed to: %d", $time, uart_tx_0);

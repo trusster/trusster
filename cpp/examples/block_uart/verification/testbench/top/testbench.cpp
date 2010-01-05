@@ -126,18 +126,25 @@ testbench::~testbench () {
 }
 
 void testbench::time_zero_setup () {
-  wishbone_driver_->reset = 0;
+  //  wishbone_driver_->reset = 0;
+  //arrgh that multiple driver issue systemc,put pulldown on testbenvh.v
 };
 
 void testbench::out_of_reset (reset r) {
+  wishbone_driver_->pause (10);
+  log_ << teal_info << "begin set reset to 1" << teal::endm;
   wishbone_driver_->reset = 1;
   wishbone_driver_->pause (10);
+  log_ << teal_info << "begin set reset to 0" << teal::endm;
   wishbone_driver_->reset = 0;
   //    uart->out_of_reset (r);  //what if not using a uart? or, worse, the dut's a stub?
 }
 
 void testbench::randomize () {
   uart_configuration->randomize ();
+  //need to start it here because write_to_hardware of uart 16550 will use the driver
+  wishbone_driver_->start ();
+
 }
 
 void testbench::write_to_hardware () {

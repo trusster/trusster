@@ -42,8 +42,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 testbench::testbench (const std::string top_path) : truss::testbench_base ("testbench"), top_ (top_path),
-						    reset_ (top_ + ".reset", teal::vreg::observe_and_control),
-						    clock_ (top_ + ".clock", teal::vreg::observe_only)
+						    reset_ (top_ + ".reset", 1, teal::vreg::observe_and_control),
+						    clock_ (top_ + ".clock", 1, teal::vreg::observe_only)
 
     {
       log_.show_debug_level (teal::debug);
@@ -106,7 +106,7 @@ const teal::uint32 reset_count = 10;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    void testbench::out_of_reset (reset r) {
-    log_ << teal_debug << "out of reset" << teal::endm;
+     log_ << teal_debug << "out of reset clock is: " << clock_ << teal::endm;
     reset_ = 1;
     for (teal::uint32 i(0); i < reset_count; ++i) {
       log_ << teal_info << " reset clock count " << i << teal::endm;

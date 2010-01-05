@@ -73,6 +73,7 @@ namespace uart {
 
     teal::condition done_;
     teal::uint32 word_count_;
+    bool done_flag_;
   };
 };
 

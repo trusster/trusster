@@ -36,7 +36,7 @@ using namespace teal;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-uart::checker::checker (const std::string& name) : thread (name), log_ (name), done_ (name),  word_count_ (0)
+uart::checker::checker (const std::string& name) : thread (name), log_ (name), done_ (name),  word_count_ (0), done_flag_(false)
 {}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,11 @@ void uart::checker::start_ ()
     if (current_rx == current_rx_block.words_.end ()) { note_actual_check ();}
     if (current_tx == current_tx_block.words_.end ()) { note_expected_check ();}
     
-    if ((current_tx == current_tx_block.words_.end ()) && (!more_ ())) {done_.signal (); }
+    if ((current_tx == current_tx_block.words_.end ()) && (!more_ ())) {
+      log_ << teal_info << " Signalling done. " << teal::endm;
+      done_flag_ = true;
+      done_.signal (); 
+    }
   }
 }
 
@@ -95,5 +99,6 @@ void uart::checker::report (const std::string prefix) const
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void uart::checker::wait_for_completion () 
 {
+  if (done_flag_) return;
   done_.wait ();
 }

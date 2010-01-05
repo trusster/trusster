@@ -28,7 +28,8 @@ module top;
    // Wishbone
    //
    tri1        wb_ack;
-   reg 	       wb_clock;
+   reg 	       wb_clockr;
+   wire	       wb_clock;
    reg 	       wb_rst;
    wire [31:0] wb_adr;   
    wire [31:0] wb_dat_to_uart;
@@ -57,13 +58,7 @@ module top;
    end
    
    
-   
-   //
-   // CLOCK
-   //
-   initial  wb_clock = 0;
-   always #16.955 wb_clock = ~wb_clock;
-   
+   assign   wb_clock = wb_clockr;   
    
    uart_top  uart_0 (
 		     //Wishbone
@@ -112,25 +107,18 @@ module top;
 
 
 
+   initial  wb_clockr = 0;
+   
+   always
+     begin
+	#16.955 wb_clockr = ~wb_clock;
+     end
+
 
    initial BAUD_RATE_CLOCK = 0;
    always #16.955 BAUD_RATE_CLOCK = ~BAUD_RATE_CLOCK;
 
    
-   //Standard startup code
-   initial 
-     begin
-	#100;
-	$display ("%t Starting Truss", $time);
-	$verification_top;
-     end
-
-   reg[7:0] init_done;
-   initial begin
-      init_done = 0; 
-      init_done = #43 8'hFF;
-   end
-
 
    reg test_done;
    reg test_done_ack;

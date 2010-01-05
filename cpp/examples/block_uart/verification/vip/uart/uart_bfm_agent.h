@@ -46,9 +46,12 @@ namespace uart {
 
     void add_word (const word& w) {words_.push_back (w);}
 
+
     std::deque<uart::word> words_;
     teal::uint32 block_delay_;
   };
+
+
 
   ////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////
@@ -74,7 +77,6 @@ namespace uart {
     virtual void start ();
     virtual void stop ();
     
-
   protected:
     virtual void receive_completed_ (const uart::word&);
 
@@ -87,5 +89,7 @@ namespace uart {
 
     void do_tx_thread ();
   };
+
+
 };
 #endif

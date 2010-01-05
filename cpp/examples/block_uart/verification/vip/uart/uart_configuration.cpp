@@ -111,7 +111,7 @@ teal::vout& uart::configuration::operator<< (teal::vout& v) const
 {
   v << " parity: ";  ::operator<< (v, parity_);
   v << " baud_rate "; ::operator<< (v, baud_rate_);
-  v << " data_size_  " << dec << data_size_;
+  v << " data_size_  " << teal::dec << data_size_;
   v << " stop_bits "; ::operator<< (v, stop_bits_);
   v << " use_dtr_dsr: " << use_dtr_dsr_;
   v << " use cts_rts: " << use_cts_rts_;
@@ -229,5 +229,5 @@ void uart::configuration::randomize ()
 
  void uart::configuration::report (const std::string prefix) const
 {
-  log_ << prefix << *this << endm;
+  log_ << teal_info << prefix << *this << endm;
 }

@@ -47,9 +47,9 @@ alu::driver_agent::driver_agent (const std::string& name, truss::port<driver_con
 void alu::driver_agent::start_ ()
 {
   for (;;) {
-    //    log_ << teal_debug << level (3) << " wait for an operation..." << teal::endm;
+        log_ << teal_debug << level (3) << " wait for an operation..." << teal::endm;
     operation current_tx = to_be_transmitted_->get ();
-    //    log_ << teal_debug << " Operation to perform " << current_tx << teal::endm;
+        log_ << teal_debug << " Operation to perform " << current_tx << teal::endm;
     send_operation (current_tx);
   }
 }

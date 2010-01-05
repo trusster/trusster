@@ -38,6 +38,6 @@ uart::generator_agent::generator_agent (const std::string& n, uart::channel_put*
 
 void uart::generator_agent::send_block_ (const uart::block& the_block)
 {
-  log_ << teal_info << " generator sending  block now." << teal::endm;
+  log_ << teal_info << " generator sending block now." << teal::endm;
   out_->put (the_block);
 }

@@ -24,17 +24,21 @@ module wishbone_driver (clk, rst, adr, din, dout, cyc, stb, sel, we, ack, err, r
    
    always @(posedge (do_work))
      begin
-	work_done = 0;
+	#1;
+	work_done = 0;	
 	do_work = 0;	       
-	//	 $display ("%t ns Verilog %m Received op_code %d", $time, op_code);
+	 $display ("%t ns Verilog %m Received op_code %d", $time, op_code);
 
 
 	case (op_code)
 	  0: begin
+	     $display ("[%t] [%m] before Completed write: 0x%x , 0x%x (select 0b%b)", $time, address, data, select);
 	     wb_mast.wb_wr1 (address, select, data);
 	     $display ("[%t] [%m] Completed Write1: 0x%x , 0x%x (select 0b%b)", $time, address, data, select);
 	  end
 	  1: begin
+	data = 32'h0;
+	     $display ("[%t] [%m] before Completed Read1: 0x%x , 0x%x (select 0b%b)", $time, address, data, select);
 	     wb_mast.wb_rd1 (address, select, data);
 	     $display ("[%t] [%m] Completed Read1: 0x%x , 0x%x (select 0b%b)", $time, address, data, select);
 	  end
@@ -46,7 +50,12 @@ module wishbone_driver (clk, rst, adr, din, dout, cyc, stb, sel, we, ack, err, r
 	work_done <= 1;  //non blocking so as not to miss the posedge.
      end
 
+   always @(do_work)
+     begin
+	$display ("%t ns Verilog %m do work chenged. is now  %d", $time, do_work);
+     end
 
    //The real workhorse...
    wb_mast wb_mast (clk, rst, adr, din, dout, cyc, stb, sel, we, ack, err, rty); 
+	
 endmodule

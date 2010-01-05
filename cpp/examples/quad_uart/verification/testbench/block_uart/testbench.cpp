@@ -58,8 +58,10 @@ testbench::testbench (const std::string top_path) : truss::testbench_base ("test
 
   //Now for the main chip register interface
   port <wishbone::configuration::signals>::pins  wishbone_port;
+  //  wishbone_port [wishbone::configuration::reset] = top_ + ".wb_rst_ir";
   wishbone_port [wishbone::configuration::reset] = top_ + ".wb_rst";
-  wishbone_port [wishbone::configuration::clock] = top_ + ".wb_clock";
+    wishbone_port [wishbone::configuration::clock] = top_ + ".wb_clock";
+    //wishbone_port [wishbone::configuration::clock] = top_ + ".wb_clockr";
   wishbone_port [wishbone::configuration::address] = top_ + ".wishbone_driver.address";
   wishbone_port [wishbone::configuration::data] = top_ + ".wishbone_driver.data";
   wishbone_port [wishbone::configuration::select] = top_ + ".wishbone_driver.select";
@@ -80,11 +82,12 @@ testbench::~testbench () {
 }
 
 void testbench::time_zero_setup () {
-  wishbone_driver_->reset = 0;
+  //  wishbone_driver_->reset = 0;
   log_ << teal_debug << "testbench reset() done " << teal::endm;
 };
 
 void testbench::out_of_reset (reset r) {
+  wishbone_driver_->pause (10);
   wishbone_driver_->reset = 1;
   wishbone_driver_->pause (10);
   wishbone_driver_->reset = 0;
@@ -95,6 +98,7 @@ void testbench::randomize () {
   for (teal::uint32 i(0); i < number_of_uarts; ++i) {
         uart_interface[i]->uart_configuration->randomize ();
   }
+  wishbone_driver_->start ();
 }
 
 void testbench::write_to_hardware () {

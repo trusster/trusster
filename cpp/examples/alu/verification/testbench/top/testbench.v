@@ -17,7 +17,7 @@
   *    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
   */
 
-`timescale 1 ps / 1 ps
+`timescale 1 ns / 1 ns
 
 module top;
 
@@ -55,12 +55,12 @@ module top;
      end
    
 
-   initial 
-     begin
-	$display ("%t 123 Starting Truss", $time);
-#100;
-	$verification_top;
-     end
+//   initial 
+//     begin
+//	$display ("%t 123 Starting Truss", $time);
+//#100;
+//	$verification_top;
+//     end
 
    watchdog watchdog (.timeout (timeout));
 

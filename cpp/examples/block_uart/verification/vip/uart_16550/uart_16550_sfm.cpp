@@ -47,8 +47,8 @@ uart::uart_16550_sfm::uart_16550_sfm (const std::string& name,
 				    const uart::configuration* c, teal::uint64 clock_frequency) :
   verification_component (name), 
   multi_thread (name),
-  interrupt_request_ (port[uart::configuration_16550::interrupt]),
-  baud_rate_clock_   (port[uart::configuration_16550::reference_clock]),
+  interrupt_request_ (port[uart::configuration_16550::interrupt], 1, teal::vreg::observe_only),
+  baud_rate_clock_   (port[uart::configuration_16550::reference_clock], 1, teal::vreg::observe_only),
   configuration_ (c),
   clock_frequency_ (clock_frequency)
 {
@@ -61,9 +61,9 @@ uart::uart_16550_sfm::uart_16550_sfm (const std::string& name,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void uart::uart_16550_sfm::do_rx_thread_ () {
   for (;;) {
-    log_ << "Wait for interrupt" << teal::endm;
+    log_ << teal_info << "Wait for interrupt" << teal::endm;
     teal::at (teal::posedge (interrupt_request_));
-    log_ << "GOT 16550 interrupt" << teal::endm;
+    log_ << teal_info << "GOT 16550 interrupt" << teal::endm;
 
     word current_rx (configuration_->data_size_, 0);
     //DO status part

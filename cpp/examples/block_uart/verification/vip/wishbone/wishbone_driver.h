@@ -47,7 +47,7 @@ namespace wishbone {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class wishbone_driver {
+  class wishbone_driver : public truss::thread {
  public:
   wishbone_driver (const std::string& n, truss::port <configuration::signals>::pins p);
 
@@ -60,6 +60,8 @@ class wishbone_driver {
 
   const std::string name;
 
+  void start_ ();
+
  private:
   teal::vreg clock_;
   teal::vreg address_;
@@ -70,6 +72,15 @@ class wishbone_driver {
   teal::vreg  work_done_;
   teal::mutex mutex_;
   teal::vout log_;
+
+  void write8_ (teal::uint32 a, const teal::reg& d);
+  teal::reg read8_ (teal::uint32 address);
+  //For the thread communication
+  bool internal_read_;
+  teal::uint32 internal_address_;
+  teal::reg internal_data_;
+  teal::condition internal_do_work_;
+  teal::condition internal_done_;
 };
 }
 
