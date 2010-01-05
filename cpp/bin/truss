@@ -28,7 +28,7 @@ $CC   = gcc;
 #
 # Get switches and print help messages if needed.
 GetOptions(\%options, "help|?", "test:s", "clean:s@", "simulator:s", "cpp_compile!",
-	  "hdl_compile!", "run!", "verbose!", "debug", "seed:i", "runs:i", "config:s",
+	  "hdl_compile!", "run!", "verbose!", "debug", "seed:i", "timeout:i", "runs:i", "config:s",
 	  "args_run:s");
 if (defined($options{"help"})) {usage(); detailed_usage(); exit}
 # User is trying to run. Let's brag!
@@ -155,18 +155,18 @@ if ($options{"hdl_compile"}){
 				"$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.$ENV{\"SIM\"}.a " .
 				"$ENV{\"PROJECT_HOME\"}/verification/test_components/test_components.$ENV{\"SIM\"}.a " . 
 				"$ENV{\"PROJECT_HOME\"}/verification/vip/vip.$ENV{\"SIM\"}.a " . 
-				"$ENV{\"SIMULATOR_HOME\"}/linux/libsystemc_gcc32.a " .
+				"$ENV{\"SIMULATOR_HOME\"}/linux/libsystemc_gcc40.a " .
 				"$ENV{\"TEAL_HOME\"}/libteal.$ENV{\"SIM\"}.a " .
 				" -lstdc++  -shared " .
 				"-o $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so ");
 
 
     $building_shared_library = ("sccom -link " .
-#				"$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.o " .
+				"$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.o " .
 				"$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.$ENV{\"SIM\"}.a " .
 				"$ENV{\"PROJECT_HOME\"}/verification/test_components/test_components.$ENV{\"SIM\"}.a " . 
 				"$ENV{\"PROJECT_HOME\"}/verification/vip/vip.$ENV{\"SIM\"}.a " . 
-				"$ENV{\"SIMULATOR_HOME\"}/linux/libsystemc_gcc32.a " .
+				"$ENV{\"SIMULATOR_HOME\"}/linux/libsystemc_gcc40.a " .
 				"$ENV{\"TEAL_HOME\"}/libteal.$ENV{\"SIM\"}.a " .
 #				"-l$ENV{\"TEAL_HOME\"}/libteal.mti.a -lib $ENV{\"TEAL_HOME\"}/teal " . 
 #				"-lib $ENV{\"TRUSS_HOME\"}/src/truss_$options{\"test\"} " .
@@ -338,19 +338,22 @@ if ($options{"run"}){
     # MTI
     #
     if (uc $ENV{SIM} eq "MTI"){
+	if ($options{"timeout"} != "" ) 
+	{ $timeout_string = "-sc_arg  +watchdog_timeout+$options{timeout} ";};
       $the_run_command = ("cd $RESULT_DIR; " .
-			  "vsim -c -t 1ns -novopt " .
-#			  "vsim -t 1ns  " .
+			  "vsim -c -novopt " .
+#			  "vsim -novopt  " .
 			  ($options{"verbose"} ? "" : "-quiet ") .
 			  "-do $ENV{\"PROJECT_HOME\"}/verification/bin/vsim.do " .
-			  "top verification_top " .
+			  "verification_top top " .
 #use the following for direct link
 #			  " -pli $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so " .
-			  "+seed+$this_seed " .
-			  "$dictionary_cmd " .
+			  "-sc_arg  +seed+$this_seed " .
+			  "$timeout_string" .
+#			  "-sc_arg $dictionary_cmd " .
 #			  "-lib $ENV{\"TRUSS_HOME\"}/src/truss_$options{\"test\"} " .
 			  "$options{\"args_run\"} " .
-			  "+out_file+$result_file "
+			  "-sc_arg +out_file+$result_file "
 			 );
       
       truss_system ($the_run_command);

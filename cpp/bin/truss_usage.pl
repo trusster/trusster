@@ -13,6 +13,7 @@ sub usage{
   print "      [--noverbose]\n";
   print "      [--debug]\n";
   print "      [--seed <value>]\n";
+  print "      [--timeout <value>]\n";
   print "      [--runs <value>]\n";
   print "      [--args_cpp_compile <\'string\'>]\n";
   print "      [--args_hdl_compile <\'string\'>]\n";
@@ -56,6 +57,8 @@ sub detailed_usage{
   print "--norun                Will not run simulation (i.e compile only)\n";
   print "\n";
   print "--seed                 Integer \'value\' will be used instead of random seed\n";
+  print "\n";
+  print "--timeout              Integer \'value\' will be used instead of default timeout\n";
   print "\n";
   print "--runs                 Repeat \'value\' number of times, incrementing the seed\n";
   print "\n";
