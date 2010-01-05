@@ -52,7 +52,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
       virtual void from_memory (uint64 address, reg*) = 0;
       virtual void to_memory (uint64 address, const reg& value) = 0;
-      virtual void to_memory_blocked (uint64 address, const reg& value) = 0;
+      virtual void to_memory_blocked (uint64 address, const reg& value) {to_memory (address, value);}
 
       bool contains (const std::string& path) const {return (path_.find (path) != std::string::npos);};
       bool contains (uint64 address) const {return ((address >= first_address) && (address <= last_address));};

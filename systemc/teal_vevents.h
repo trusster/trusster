@@ -30,71 +30,23 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 //WARNING: This is not a stand-alone header file. It is intended to be used as part of teal.h
-  /////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////
-#if 0
-namespace sc_core {
-  class sc_event;
-  class sc_process;
-};
 
-  class condition {
-  public:
-    condition (const std::string& name);
-    virtual ~condition ();
-
-    virtual void wait ();
-    //as above, but do not consider signals that have occured prior to the current simulation time
-    virtual void wait_now ();
-    virtual void signal ();
-    const std::string name_;
-
-  protected:
-    sc_core::sc_event* event_;
-
-  private:
-    condition& operator= (const condition&) ;
-    condition (const condition&);
-  };
-
+#if !defined (__teal_vevents_h__)
+#define __teal_vevents_h__
 
   /////////////////////////////////////////////////////
   /////////////////////////////////////////////////////
-  class mutex {
-  public:
-    mutex (const std::string& name);
-    virtual ~mutex ();
-
-    virtual void lock ();
-    virtual void unlock ();
-
-    const std::string name_;
-
-  protected:
-    condition condition_;
-    sc_core::sc_process_b* process_;
-  };
-
-  /////////////////////////////////////////////////////
-  /////////////////////////////////////////////////////
-  class mutex_sentry {
-  public:
-    mutex_sentry (mutex& m) : mutex_ (m) {mutex_.lock ();}
-    virtual ~mutex_sentry () {mutex_.unlock ();};
-  private:
-    mutex& mutex_;
-  };
-
-#else
+//Note: maybe stickiness (done_) should be a bool in ctor?
   class condition  {
   public:
-    explicit condition (const std::string name) : event_ (), name_ (name) {} 
-    void signal () {event_.notify ();};
+    explicit condition (const std::string name) : event_ (), name_ (name), done_ (false) {} 
+      void signal () {done_ = true;event_.notify ();};
     void wait () {
 #if defined(VM_SIZE)
       vout pm(name_);
       VM_SIZE(pm);
 #endif
+      //      if (done_) {done_ = false; return;}
       sc_core::wait (event_);
 #if defined(VM_SIZE)
       VM_SIZE(pm);
@@ -107,6 +59,7 @@ namespace sc_core {
     sc_core::sc_event event_;
     friend void wait (condition& ev);
     std::string name_;
+    bool done_;
   };
 
   inline void wait (condition& ev) {return ev.wait ();}

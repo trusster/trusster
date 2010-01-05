@@ -50,7 +50,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   class vreg : public reg {
   public:
     typedef enum {observe_only, observe_and_control} signal_control;
-    explicit vreg (const std::string& path_and_name, uint32 bit_length, signal_control x = observe_only);
+    explicit vreg (const std::string& path_and_name, uint32 bit_length, signal_control x);
     virtual ~vreg ();
 
     virtual vreg* operator[] (int index);

@@ -31,10 +31,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "teal.h"
 
-#if !defined(SJM)
-#define SJM 0
-#endif
-
 using namespace teal;
 using namespace teal::memory;
 
@@ -155,7 +151,6 @@ void teal::memory::write (uint64 global_address, const reg& value)
 /////////////////////////////////////////////////////////////////
 void teal::memory::write_blocked (uint64 global_address, const reg& value)
 {
-  if (SJM) assert(0);
   for (iter it (banks_.begin ()); it != banks_.end (); ++it) {
     if ((*it)->contains (global_address)) {
       if (chatty_) {

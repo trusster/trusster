@@ -152,8 +152,8 @@ typedef void   *handle;
     teal_acc_vecval vecval (uint32 i) const 
       {return (i < word_length_ ? teal_acc_vecval_[i] : 0);}
 
-  protected:
     void resize (uint32 bit_length);
+  protected:
 
     //WARNING, order of parameters is used in ctors
     mutable uint32 bit_length_;

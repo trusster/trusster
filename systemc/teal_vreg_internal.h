@@ -94,6 +94,8 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     mutable std::vector<vreg_internal*> wires_;
     mutable sc_core::sc_signal_resolved * one_bit_rd_;
     mutable sc_core::sc_signal_resolved * one_bit_wr_;
+
+    mutable sc_core::sc_signal_resolved * one_bit_;
     mutable bool in_read_check_;
 
   private:

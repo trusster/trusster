@@ -937,7 +937,6 @@ void teal::reg::get_nibble_ (uint32 i, uint32 j, uint8* a, uint8* b) const
 std::ostream& teal::operator<< (std::ostream& c, const reg& rhs)
 {
   //NO READ CHECK!! This is for debugging only
-  //  rhs.read_check ();
   c << std::dec <<"bit_length " << rhs.bit_length_ << 
     " word length " << rhs.word_length_ << std::hex  <<
     " vecval at " << (uint32*)rhs.teal_acc_vecval_ << std::endl;
