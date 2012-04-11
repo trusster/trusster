@@ -1,0 +1,210 @@
+#!/usr/bin/perl -s
+
+
+if ($clean) {
+  system ("make clean");
+}
+  
+if ($l) {
+  $foo = @ARGV[0];
+  open (FOO_FILE, "$foo") || die "run ERROR: cannot open test list $foo $!\n";
+  @test_list = <FOO_FILE>
+}
+elsif ($t) {
+  @test_list = @ARGV[0];
+}
+
+
+if ($ivl) {
+    $SIM = ivl;
+}
+elsif ($mti_2_0) {
+    $SIM = mti_2_0;
+}
+elsif ($mti) {
+    $SIM = mti;
+}
+elsif ($vcs) {
+    $SIM = vcs;
+}
+elsif ($vcs_2_0) {
+    $SIM = vcs_2_0;
+}
+elsif ($cver) {
+    $SIM = cver
+}
+elsif ($cver_2_0) {
+    $SIM = cver_2_0
+}
+elsif ($aldec) {
+    $SIM = aldec
+}
+elsif ($ncsim) {
+    $SIM = ncsim
+}
+elsif ($aldec_2_0) {
+    $SIM = aldec_2_0
+}
+else  {die "Unknown simulator.";}
+
+$passed = 0;
+$failed = 0;
+$errored = 0;
+$total_tests = 0;
+
+foreach $test (@test_list) {
+  #get rid of CR
+  chomp $test;
+
+  if (!$test) {next;}
+  if ($test =~ /\\/) {next;}
+#  print "For test \"${test}\" \n";
+#  next;
+
+#  if ($c) {
+#    system ("make SIM=$SIM TEST=$test");
+#  }
+
+  $now = `date`;
+  print "Starting simulation at $now \n";
+
+  $results_file = "${test}_results.txt";
+  system ("rm $results_file");
+
+  if ($ivl) {
+    if ($batch) {
+      $run_command = "vvp -M /usr/lib/ivl ./$test > $results_file";
+    }
+    else {
+      $run_command = "vvp -M /usr/lib/ivl ./$test +out_file+$results_file";    
+    }
+  }
+  elsif ($mti) {
+    system ("vlib work");
+    system ("vlog -suppress 2167  +define+MTI +define+PURE=pure +incdir+.. -mfcu  $test.v  $test.sv");  
+
+    if ($batch) {
+      $run_command = "vsim  -do vsim.do top -pli $test.$SIM.so > $results_file";
+    }
+    else {
+#      $run_command = "vsim -c -do vsim.do top -pli $test.$SIM.so +out_file+$results_file";    
+      $run_command = "vsim -c -suppress 3020  -suppress 3829 -do vsim.do interfaces_dut top verification_top +out_file+$results_file";    
+    }
+  }
+  elsif ($mti_2_0) {
+    system ("vlib work");
+    system ("vlog $test.v");
+
+    if ($batch) {
+      $run_command = "vsim -c -do vsim.do top -pli $test.$SIM.so > $results_file";
+    }
+    else {
+      $run_command = "vsim -trace_foreign 1 -c -do vsim.do top -pli $test.$SIM.so +out_file+$results_file";    
+    }
+  }
+  elsif ($ncsim) {
+irun dictionary_test.sv dictionary_test.v -f hdl_paths.ncsim +define+PURE=extern +define+ncsim=1 +out_file+dictionary_test_results.txt
+      system ("mkdir ncvlog_lib");
+      system ("echo DEFINE ncvlog_lib ./ncvlog_lib > cds.lib");
+      system ("ncvlog $test.v -WORK ncvlog_lib");
+#      system ("ncelab -LIBNAME ncvlog_lib top -SNAPSHOT ncvlog_lib.ncvlog_lib:ncvlog_lib");
+#      $run_command = "ncxlmode $test.v +loadpli1=./$test.$SIM.so:vlog_startup_routines +out_file+$results_file";    
+#      $run_command = "ncxlmode $test.v +loadpli1=./libpli.so:veriusertfs +out_file+$results_file";    
+#      system ("ncelab -REDUCE_MESSAGES -NOCOPYRIGHT -ARR_ACCESS -ACCWARN -LIBNAME ncvlog_lib -LOGFILE ncelab.log -access +RWC ncvlog_lib.top -SNAPSHOT ncvlog_lib.ncvlog_lib:ncvlog_lib");
+      system ("irun -REDUCE_MESSAGES -NOCOPYRIGHT -ARR_ACCESS -ACCWARN -LIBNAME ncvlog_lib -LOGFILE ncelab.log -access +RWC ncvlog_lib.top -SNAPSHOT ncvlog_lib.ncvlog_lib:ncvlog_lib");
+#      system ("ncsim top");
+      $run_command = "ncsim -REDUCE_MESSAGES -NOCOPYRIGHT -ACCWARN -RUN -LOGFILE ncsim.log ncvlog_lib.ncvlog_lib:ncvlog_lib +out_file+$results_file"
+  }
+  elsif ($vcs) {
+      system ("vcs -sverilog -ntb_opts dtm +acc+1 +cli+4  $test.v +incdir+.. +define+PURE=extern $test.sv " );
+#vcs +plusarg_save  $test.v -P pli.tab $test.$SIM.so +out_file+$results_file";    
+    if ($batch) {
+      $run_command = "./simv > $results_file";
+    }
+    else {
+      $run_command = "./simv +out_file+$results_file";    
+    }
+  }
+  elsif ($vcs_2_0) {
+      system ("vcs -P pli.tab $test.v $test.$SIM.so +vpi +cli+4" );
+#vcs +plusarg_save  $test.v -P pli.tab $test.$SIM.so +out_file+$results_file";    
+    if ($batch) {
+      $run_command = "./simv > $results_file";
+    }
+    else {
+      $run_command = "./simv +out_file+$results_file";    
+    }
+  }
+  elsif ($cver) {
+      $run_command = "cver -q +loadpli1=./$test.cver:pli_compat_bootstrap $test.v +out_file+$results_file"
+  }
+  elsif ($cver_2_0) {
+      $run_command = "cver -q +loadvpi=./$test.cver_2_0:vpi_compat_bootstrap $test.v +out_file+$results_file"
+  }
+  elsif ($aldec) {
+#      system ("echo set user_pli ./$test.aldec.so > meta_aldec.do");
+      system ("echo vlib  work >> meta_aldec.do");
+      system ("echo  vlog -work work +accr+top $test.v $test.sv  >> meta_aldec.do");
+      system ("echo set worklib work >> meta_aldec.do");
+
+      system ("echo vsim top  +out_file+$results_file +access +w >> meta_aldec.do");
+      system ("echo run 1sec >> meta_aldec.do");
+      system ("echo quit >> meta_aldec.do");
+
+#    system ("vlib work");
+#    system ("vlog -work work +accr+top $test.v");
+    
+
+      $run_command = "vsimsa meta_aldec.do";    
+  }
+  elsif ($aldec_2_0) {
+      system ("echo set user_pli ./$test.aldec_2_0.so > meta_aldec.do");
+#      system ("echo set worklib work >> meta_aldec.do");
+      system ("echo vlib  work >> meta_aldec.do");
+      system ("echo  vlog -work work +accr+top $test.v >> meta_aldec.do");
+      system ("echo vsim top  +out_file+$results_file +access +w >> meta_aldec.do");
+      system ("echo run 1sec >> meta_aldec.do");
+      system ("echo quit >> meta_aldec.do");
+
+#    system ("vlib work");
+#    system ("vlog -work work +accr+top $test.v");
+
+      $run_command = "vsimsa meta_aldec.do";    
+  }
+  else {die "Unknown run command type \"$SIM\" for simulator. Must be mti, mti_2_0, ncsim, vcs, vcs_2_0 or ivl";}
+
+  print "For test ${test}: $run_command\n";
+
+  system ($run_command);
+    wait;  #wait for it to complete
+
+  $now = `date`;
+  print "Simulation complete at $now \n";
+
+  #print "$test_list \n";
+
+  $result_found = 0;
+  $total_tests++;
+
+  #now cout it as passed or failed
+  $pass_line = `grep -i "passed" $results_file`;
+  if ($pass_line) {
+    print $test $pass_line;
+    #should put this in a meta reults file somewhere?
+    $passed++;
+    $result_found = 1;
+  }
+  $fail_line = `grep -i "failed" $results_file`;
+  if ($fail_line) {
+    print $test $fail_line;
+    #should put this in a meta reults file somewhere?
+    $failed++;
+    $result_found = 1;
+  }
+  if (!$result_found) {
+    print "*** Error: Test \"$test\" did not seem to pass or fail! ***\n";
+    $errored++;
+  }
+}
+
+print "Total results (of $total_tests): PASS: $passed FAIL: $failed ERROR: $errored\n";

@@ -1,0 +1,36 @@
+# vsim +out_file+vrandom_test_results.txt -do vsim.do -c -suppress 3829 interfaces_dut top verification_top 
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# //  QuestaSim 6.2e Nov 16 2006 Linux 2.6.9-22.EL
+# //
+# //  Copyright 2006 Mentor Graphics Corporation
+# //              All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND 
+# //  PROPRIETARY INFORMATION WHICH IS THE PROPERTY
+# //  OF MENTOR GRAPHICS CORPORATION OR ITS LICENSORS
+# //  AND IS SUBJECT TO LICENSE TERMS.
+# //
+# Loading /home/mmintz/questa/questasim/linux/../sv_std.std
+# Loading work.teal(fast)
+# Loading work.vrandom_test_sv_unit(fast)
+# Loading work.verification_top(fast)
+# Loading work.top(fast)
+# Loading work.interfaces_dut(fast)
+# opened file: vrandom_test_results.txt
+# do vsim.do 
+# mean of squares is 109863.375000
+# mean is 234.375000 sqared is 54931.640625 
+# temp is 54931.734375
+# standard deviation is 234.375200
+# [44][INFO][vrandom_test]mean 234.375000 and  mean of squares 109863.375000 standard deviation 234.375200 temp 54931.734375
+# [44][ERROR][vrandom_test]xx 160 xx were within one standard deviation. Expected at least: 174
+# [44][INFO][vrandom_test]256 xx were within two standard deviations. Expected at least: 243
+# square root of 0.0000000f is 0.000000
+# mean of squares is 29.930333
+# mean is 4.979667 sqared is 24.797080 
+# temp is 0.000000
+# standard deviation is 0.000000
+# [44][INFO][vrandom_test]mean 0.000000 and  mean of squares 0.000000 standard deviation 0.000000 temp 0.000000
+# [44][ERROR][vrandom_test]0 were within one standard deviation. Expected at least: 8160
+# [44][ERROR][vrandom_test]0 were within two standard deviations. Expected at least: 11400
+# [44][INFO][vrandom_test]Test Failed: Contained 3 error(s).

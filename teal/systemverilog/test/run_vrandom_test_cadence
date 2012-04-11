@@ -1,0 +1,1 @@
+irun vrandom_test.sv vrandom_test.v -f hdl_paths.ncsim +define+PURE=extern +define+ncsim=1 +out_file+vrandom_test_results.txt vrandom_test.cpp

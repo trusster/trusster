@@ -1,0 +1,20 @@
+memory_test
+
+vreg_test
+
+dictionary_test
+reg_test
+vrandom_test
+vout_test
+
+\\not a test
+\\This is a comment
+mutex_test
+\\run_loop_test  is in white toolbox now
+semaphore_test
+synch_test
+
+
+
+
+

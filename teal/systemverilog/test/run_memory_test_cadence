@@ -1,0 +1,1 @@
+irun	memory_test.sv 	memory_test.v	-f hdl_paths.ncsim +define+PURE=extern	+define+ncsim=1	+out_file+memory_test_results.txt 

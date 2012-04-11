@@ -1,0 +1,8 @@
+irun	memory_test.sv 	memory_test.v	-f hdl_paths.ncsim +define+PURE=extern	+define+ncsim=1	+out_file+memory_test_results.txt 
+
+
+#	-irun -NOCOPYRIGHT -input ncsim.in -log_ncsim ncsim_.log \
+#	  -reduce_messages -sysc                                 \
+#	  -assert -propfile_sc propfile.psl                      \
+#          -top ${DESIGN_TOP} ${SYSTEMC_SOURCES}
+
