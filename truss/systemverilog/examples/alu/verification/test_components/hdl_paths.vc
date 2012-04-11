@@ -1,0 +1,6 @@
++incdir+$PROJECT_HOME/verification/test_components
+
++incdir+$PROJECT_HOME/verification/vip/alu
+$PROJECT_HOME/verification/test_components/test_component.sv
+  
+  

@@ -1,0 +1,531 @@
+#!/usr/bin/perl
+
+require 5.6.0;
+use Carp;
+use Getopt::Long;
+use Cwd;
+
+if (!defined ($ENV{TRUSS_HOME})) {croak "Error! \$TRUSS_HOME not defined. Needed by script (to load included files)";}
+
+require "$ENV{\"TRUSS_HOME\"}/bin/truss_usage.pl";
+require "$ENV{\"TRUSS_HOME\"}/bin/truss_switches.pl";
+require "$ENV{\"TRUSS_HOME\"}/bin/truss_clean.pl";
+
+# -- These arrays used by check_switches() to compare to what is passed inin.
+# -- Add to these when new simulators/clean options occur
+@SUPPORTED_SIMULATORS = qw{ VCS VCSI NCSIM MTI ALDEC IVL ATSIM};
+@CLEAN_COMMANDS = qw{NONE LOGS CPP HDL USER TRUSS TEAL ALL };
+
+#Print short usage model if no args is given
+if ($#ARGV == -1) {usage(); exit}
+#
+# GLOBAL VARIABLES OF SUPPORTED SWITCHES
+#
+$MAKE = make;
+$CC   = gcc;
+#
+# COLLECT COMMAND LINE OPTIONS AND BASIC CHECKING
+#
+# Get switches and print help messages if needed.
+GetOptions(\%options, "help|?", "test:s", "clean:s@", "simulator:s", "cpp_compile!",
+	  "hdl_compile!", "run!", "verbose!", "debug", "seed:i", "runs:i", "config:s",
+	  "args_run:s");
+if (defined($options{"help"})) {usage(); detailed_usage(); exit}
+# User is trying to run. Let's brag!
+copyright();
+#
+# PARAMETER CHECKING
+#
+# Note! This sets-up default values as well! (so cannot be skipped!)
+check_switches();
+check_env();
+#
+# OK, We seem ready to run@
+#
+# Will run in this order: clean, make, compile, run
+#Basis for all generated files (compiled and log files)
+#Check if defined othterwise set it to default place
+if (!defined($ENV{"RESULT_DIR"})){$RESULT_DIR = "$ENV{PROJECT_HOME}/results";}
+else{$RESULT_DIR = $ENV{"RESULT_DIR"}}
+print "RESULT_DIR = $RESULT_DIR\n";
+#Endure directory is in place
+if ($options{"cpp_compile"} or $options{"hdl_compile"}){
+  if (!(-e "$RESULT_DIR")) {mkdir $RESULT_DIR;}
+}
+#
+# Cleaning
+#
+#Skip if no --clean switch is provided otherwise clean selected areas
+if (uc $options{"clean"} ne "NONE"){
+
+  #loop over all --clean commands and make sure we only clean once for each possible option
+  #use a hash table to create uniquness (i.e if CPP is already defined don't do it again!)
+  foreach (@{$options{"clean"}}){
+    if (uc $_ eq "ALL") {
+      %clean_command = ("LOGS" => 1, "CPP" => 1, "HDL" => 1, "TRUSS" => 1, "TEAL" => 1); 
+      last; #we can quit now as we now we have all clean commands in there!
+    }
+    elsif (uc $_ eq "USER") {
+      %clean_command = ("LOGS" => 1, "CPP" => 1, "HDL" => 1);
+    }
+    else{
+      %clean_command = ( (uc $_) => 1);
+    }
+  }
+  #Use the actual hash keys as the string for the cleaning command
+  foreach (keys %clean_command){truss_clean($_);}
+}
+#
+#
+#
+#system("echo $config");
+#sleep (5);
+#
+# Skip if --nocompile
+if ($options{"hdl_compile"}){
+  print"\nCompiling hdl files.\n";
+  #
+  # MTI
+  #
+  if (!(-e "$RESULT_DIR/hdl")) {mkdir "$RESULT_DIR/hdl";}
+  if (uc $ENV{SIM} eq "MTI"){
+    print "Building shared libary\n";
+    $building_shared_library = ("$CC -fPIC " . 
+				"$ENV{\"TRUSS_HOME\"}/src/truss_verification_top.o " .
+				"$ENV{\"TRUSS_HOME\"}/src/truss_watchdog.o ". 
+				"$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.o " .
+				"$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.$ENV{\"SIM\"}.a " .
+				"$ENV{\"PROJECT_HOME\"}/verification/test_components/test_components.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/vip/vip.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"TEAL_HOME\"}/libteal.$ENV{\"SIM\"}.a " .
+				"-L/usr/local/lib -lstdc++ -lpthread  -shared " .
+				"-o $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so ");
+
+#    truss_system ("$building_shared_library"); 
+    if (!(-e "$RESULT_DIR/work")){
+      $create_mti_vlib = ("cd $RESULT_DIR; vlib work");
+      truss_system ($create_mti_vlib); 
+    }
+    $compile_hdl = ("cd $RESULT_DIR; vlog  " . 
+		    ($options{"verbose"} ? "" : "-quiet -nologo ") .
+		    "-suppress 2167  +define+MTI -mfcu " .
+		    " +define+PURE=pure " .
+		    "+incdir+$ENV{\"TEAL_HOME\"} ".
+		    "+incdir+$ENV{\"TRUSS_HOME\"}/inc ".
+		    "+incdir+$ENV{\"TRUSS_HOME\"}/src ".    #for truss_watchdog.sv
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/tests ".
+		    " +define+TEST=$options{\"test\"} " .
+		    " +define+TEST_FILE=\\\"$options{\"test\"}.svh\\\" " .
+		    " $ENV{\"TRUSS_HOME\"}/src/truss_watchdog.v  ".
+		    " +define+TEST_NAME=\\\"$options{\"test\"}\\\" " .
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/testbench/$config ".
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/test_components ".
+		    "$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.sv ".
+		    "-f $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.vc " .
+		    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.v " .
+		    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.sv " . 
+		    "$ENV{\"TRUSS_HOME\"}/src/truss_verification_top.sv ".  #must be last!
+		    " ");
+    print "ks*****","$compile_hdl","*****\n";
+    truss_system ($compile_hdl);
+  }
+  elsif (uc $ENV{SIM} eq "VCSI"){
+    #
+    # VCSI
+    #
+#
+#		    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.v " . 
+#		    $ENV{\"TRUSS_HOME\"}/src/truss_watchdog.v  "./testbench.sv " . 
+
+    $compile_hdl = ("cd $RESULT_DIR; vcsi -sverilog -ntb_opts dtm +vpd -debug_all  +v2k +systemverilogext+.sv  +verilog2001ext+.v  " .
+		    "-timescale=1ns/1ns ".
+		    " +define+PURE=extern " .
+		    "+incdir+$ENV{\"TEAL_HOME\"} ".
+		    "+incdir+$ENV{\"TRUSS_HOME\"}/inc ".
+		    "+incdir+$ENV{\"TRUSS_HOME\"}/src ".    #for truss_watchdog.sv
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/tests ".
+		    " +define+TEST=$options{\"test\"} " .
+#		    " +define+TEST_NAME=\\\\\\\"\\\\\\\\\\\\\\\"$options{\"test\"}\\\\\\\\\\\\\\\"\\\\\\\" " .
+#		    " +define+TEST_FILE=\\\\\\\\\\\\\\\"$options{\"test\"}\.svh\\\\\\\\\\\\\\\" " .
+		    " +define+TEST_NAME=\\\\\\\"\\\\\\\"\\\\\\\\\\\\\\\"$options{\"test\"}\\\\\\\\\\\\\\\"\\\\\\\"\\\\\\\" " .
+		    " +define+TEST_FILE=\\\\\\\"\\\\\\\"\\\\\\\\\\\\\\\"$options{\"test\"}\.svh\\\\\\\\\\\\\\\"\\\\\\\"\\\\\\\" " .
+		    " $ENV{\"TRUSS_HOME\"}/src/truss_watchdog.v  ".
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/testbench/$config ".
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/test_components ".
+		    "-f $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.vc " . 
+		    "$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.sv ".
+		    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.v " . 
+		    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.sv " . 
+		    "$ENV{\"TRUSS_HOME\"}/src/truss_verification_top.sv ".  #must be last!
+		    " ");
+    print "ks*****","$compile_hdl","*****\n";
+    truss_system ($compile_hdl);
+  }
+  elsif (uc $ENV{SIM} eq "VCS"){
+    #
+    # VCS
+    #
+#
+#		    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.v " . 
+#		    $ENV{\"TRUSS_HOME\"}/src/truss_watchdog.v  "./testbench.sv " . 
+
+    $compile_hdl = ("cd $RESULT_DIR; vcs -sverilog -ntb_opts dtm +vpd -debug_all  +v2k +systemverilogext+.sv  +verilog2001ext+.v  " .
+		    "-timescale=1ns/1ns ".
+		    " +define+PURE=extern " .
+		    "+incdir+$ENV{\"TEAL_HOME\"} ".
+		    "+incdir+$ENV{\"TRUSS_HOME\"}/inc ".
+		    "+incdir+$ENV{\"TRUSS_HOME\"}/src ".    #for truss_watchdog.sv
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/tests ".
+		    " +define+TEST=$options{\"test\"} " .
+#		    " +define+TEST_NAME=\\\\\\\"\\\\\\\\\\\\\\\"$options{\"test\"}\\\\\\\\\\\\\\\"\\\\\\\" " .
+#		    " +define+TEST_FILE=\\\\\\\\\\\\\\\"$options{\"test\"}\.svh\\\\\\\\\\\\\\\" " .
+		    " +define+TEST_NAME=\\\\\\\"\\\\\\\"\\\\\\\\\\\\\\\"$options{\"test\"}\\\\\\\\\\\\\\\"\\\\\\\"\\\\\\\" " .
+		    " +define+TEST_FILE=\\\\\\\"\\\\\\\"\\\\\\\\\\\\\\\"$options{\"test\"}\.svh\\\\\\\\\\\\\\\"\\\\\\\"\\\\\\\" " .
+		    " $ENV{\"TRUSS_HOME\"}/src/truss_watchdog.v  ".
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/testbench/$config ".
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/test_components ".
+		    "-f $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.vc " . 
+		    "$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.sv ".
+		    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.v " . 
+		    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.sv " . 
+		    "$ENV{\"TRUSS_HOME\"}/src/truss_verification_top.sv ".  #must be last!
+		    " ");
+    print "ks*****","$compile_hdl","*****\n";
+    truss_system ($compile_hdl);
+  }
+  elsif (uc $ENV{SIM} eq "ALDEC"){
+    #
+    # Aldec
+    #
+    print "\nBuilding shared libary\n";
+    $building_shared_library = ("$CC -fPIC " . 
+				"$ENV{\"TRUSS_HOME\"}/src/truss_verification_top.o " .
+				"$ENV{\"TRUSS_HOME\"}/src/truss_watchdog.o ". 
+				"$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.o  " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/test_components/test_components.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/vip/vip.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"TEAL_HOME\"}/libteal.$ENV{\"SIM\"}.a " . 
+				"-L/usr/local/lib -lstdc++ -lpthread -shared " . 
+				"-o $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so ");
+
+#    truss_system("$building_shared_library");
+    #build hdl.aldec by taking out env variables...
+    $a_name =  "$ENV{PROJECT_HOME}/verification/testbench/$config/hdl_paths.vc";
+    open(FOO, "< $a_name") 
+	or croak "Cannot open hdl_path.vc file.";
+    open (aldec_out , ">  $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.aldec")
+	or croak "Cannot create aldec file.";
+    while (<FOO>) {
+	$line = $_;
+	if (m/\$PROJECT_HOME/) {
+	    $line =~ s/\$PROJECT_HOME/$ENV{"PROJECT_HOME"}/g;
+	}
+	if (m/\$TRUSS_HOME/) {
+	    $line =~ s/\$TRUSS_HOME/$ENV{"TRUSS_HOME"}/g;
+	}
+	print aldec_out $line;
+	print $line;
+    }
+
+
+    if (!(-e "$RESULT_DIR/work")){
+      $create_mti_vlib = ("cd $RESULT_DIR; vlib work");
+      truss_system ($create_mti_vlib); 
+    }
+    $compile_hdl = ("cd $RESULT_DIR; vlog -work work " . 
+		    ($options{"verbose"} ? "" : "-quiet -nologo ") .
+		    " +define+MTI +define+aldec " .
+		    " +define+PURE=pure " .
+		    "+incdir+$ENV{\"TEAL_HOME\"} ".
+		    "+incdir+$ENV{\"TRUSS_HOME\"}/inc ".
+		    "+incdir+$ENV{\"TRUSS_HOME\"}/src ".    #for truss_watchdog.sv
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/tests ".
+		    " +define+TEST=$options{\"test\"} " .
+		    " +define+TEST_FILE=\\\"$options{\"test\"}.svh\\\" " .
+		    " $ENV{\"TRUSS_HOME\"}/src/truss_watchdog.v  ".
+		    " +define+TEST_NAME=\\\"$options{\"test\"}\\\" " .
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/testbench/$config ".
+		    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/test_components ".
+		    "$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.sv ".
+		    "-f $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.vc " .
+		    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.v " .
+		    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.sv " . 
+		    "$ENV{\"TRUSS_HOME\"}/src/truss_verification_top.sv ".  #must be last!
+		    " ");
+    print "ks*****","$compile_hdl","*****\n";
+#    $compile_hdl = ("cd $RESULT_DIR; " .
+#		    "vlib work; " .
+#		    "vlog -work work +accr+top -f $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.aldec  $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.v " );
+    truss_system ($compile_hdl);
+  }
+  elsif (uc $ENV{SIM} eq "NCSIM"){
+    #
+    # NCSIM
+    #
+    print "\nBuilding shared libary\n";
+    $building_shared_library = ("$CC -fPIC " . 
+				"$ENV{\"TRUSS_HOME\"}/src/truss_verification_top.o " .
+				"$ENV{\"TRUSS_HOME\"}/src/truss_watchdog.o ". 
+				"$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.o  " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/test_components/test_components.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/vip/vip.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"TEAL_HOME\"}/libteal.$ENV{\"SIM\"}.a " . 
+				"-L/usr/local/lib -lstdc++ -lpthread -shared " . 
+#need to get real so name to nc command line
+				"-o $RESULT_DIR/libpli.so "); #make sure "." is on LD_LIBRARY_PATH or PATH, 
+    truss_system("$building_shared_library");
+
+    $compile_hdl = ("cd $RESULT_DIR; mkdir ncvlog_lib; " . 
+		    "echo DEFINE ncvlog_lib ./ncvlog_lib > cds.lib; " .
+		    "echo DEFINE WORK ncvlog_lib > hdl.var; " .
+		    "ncvlog $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.v -WORK ncvlog_lib " . 
+		    "-f $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.ncsim ;" . 
+		    "ncelab -REDUCE_MESSAGES -NOCOPYRIGHT -ARR_ACCESS -ACCWARN -LIBNAME ncvlog_lib -LOGFILE ncelab.log -access +RWC ncvlog_lib.top -SNAPSHOT ncvlog_lib.ncvlog_lib:ncvlog_lib");
+    truss_system ($compile_hdl);
+  }
+  elsif (uc $ENV{SIM} eq "IVL"){
+    #
+    # icarus
+    #
+    print "\nBuilding shared libary\n";
+    $building_shared_library = ("$CC -fPIC " . 
+				"$ENV{\"TRUSS_HOME\"}/src/verification_top.o " .
+				"$ENV{\"TRUSS_HOME\"}/src/truss_watchdog.o ". 
+				"$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.o  " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/test_components/test_components.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"PROJECT_HOME\"}/verification/vip/vip.$ENV{\"SIM\"}.a " . 
+				"$ENV{\"TEAL_HOME\"}/libteal.$ENV{\"SIM\"}.a " . 
+				"-L/usr/local/lib -lstdc++ -lpthread -shared -lveriuser -lvpi " . 
+				"-o $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so "); #make sure . is in LD_LIBRARY_PATH
+    truss_system("$building_shared_library");
+
+    #build hdl.aldec by taking out env variables...
+    $a_name =  "$ENV{PROJECT_HOME}/verification/testbench/$config/hdl_paths.vc";
+    open(FOO, "< $a_name") 
+	or croak "Cannot open hdl_path.vc file.";
+    open (aldec_out , ">  $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.$ENV{\"SIM\"}")
+	or croak "Cannot create aldec file.";
+    while (<FOO>) {
+	$line = $_;
+	if (m/\$PROJECT_HOME/) {
+	    $line =~ s/\$PROJECT_HOME/$ENV{"PROJECT_HOME"}/g;
+	}
+	if (m/\$TRUSS_HOME/) {
+	    $line =~ s/\$TRUSS_HOME/$ENV{"TRUSS_HOME"}/g;
+	}
+
+	print aldec_out $line;
+	print $line;
+    }
+
+
+    $compile_hdl = ("cd $RESULT_DIR; iverilog -m$RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so -o $options{\"test\"} -s top $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.v -c $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.ivl");
+    truss_system ($compile_hdl);
+  }
+
+  elsif (uc $ENV{SIM} eq "ATSIM"){
+    $compile_hdl = ("hdloffice -cg +sv +reg_wire_drivers  " .
+                    " +define+PURE=extern " .
+                    " +define+dictionary " .
+                    "+incdir+$ENV{\"TEAL_HOME\"} ".
+                    "+incdir+$ENV{\"TRUSS_HOME\"}/inc ".
+                    "+incdir+$ENV{\"TRUSS_HOME\"}/src ".    #for truss_watchdog.sv
+                    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/tests ".
+                    " +define+TEST=$options{\"test\"} " .
+                    " +define+TEST_NAME=\\\"$options{\"test\"}\\\" " .
+                    " +define+TEST_FILE=$options{\"test\"}\.svh " .
+                    " $ENV{\"TRUSS_HOME\"}/src/truss_watchdog.v  ".
+                    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/testbench/$config ".
+                    "+incdir+$ENV{\"PROJECT_HOME\"}/verification/test_components ".
+                    "-f $ENV{\"PROJECT_HOME\"}/verification/testbench/$config/hdl_paths.vc " .
+                    "$ENV{\"PROJECT_HOME\"}/verification/tests/$options{\"test\"}.sv ".
+                    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/top.v " .
+                    "$ENV{\"PROJECT_HOME\"}/verification/testbench/$config/testbench.sv " .
+                    "$ENV{\"TRUSS_HOME\"}/src/truss_verification_top.sv ".  #must be last!
+                    " ");
+    print "ks*****","$compile_hdl","*****\n";
+    truss_system ($compile_hdl);
+  }
+
+}
+# Skip if --norun
+if ($options{"run"}){
+  $this_seed = $seed;
+  for($this_seed ; $this_seed < $seed + $runs; ++$this_seed){
+    print"\nRunning Simulation\n";
+    #FIXME: Don't understand this
+    #set dictionary_cmd = ""
+    #if ($dictionary != "") then
+    #set dictionary_cmd = "+dictionary+$dictionary"
+    #endif
+    $dictionary_cmd = "";
+    $result_file = "$RESULT_DIR/$options{\"test\"}\_$this_seed\_results.log";
+    print "resultfile $result_file\n";
+    #FIXME: must be a better way to remove a file
+    if (-e "$result_file"){truss_system ("rm -f $result_file")};
+    #
+    # MTI
+    #
+    if (uc $ENV{SIM} eq "MTI"){
+      $the_run_command = ("cd $RESULT_DIR; " .
+			  "vsim -c " .
+			  "-sv_seed $this_seed " .
+#			  " -novopt " .
+			  ($options{"verbose"} ? "" : "-quiet ") .
+			  "-do $ENV{\"PROJECT_HOME\"}/verification/bin/vsim.do " .
+			  "-suppress 3020  -suppress 3829 " .
+#			  "top -pli $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so " .
+			  "+seed+$this_seed " .
+			  "$dictionary_cmd " .
+			  "$options{\"args_run\"} " .
+			  "+out_file+$result_file " .
+			  " top verification_top real_interfaces" 
+			 );
+      
+    print "ks*****","$the_run_command","*****\n";
+      truss_system ($the_run_command);
+    }
+    elsif (uc $ENV{SIM} eq "VCS" or uc $ENV{SIM} eq "VCSI" ){
+      $the_run_command = ("cd $RESULT_DIR; " .
+			  "./simv " .
+			  "top -pli $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so " .
+			  "+seed+$this_seed +ntb_random_seed=$this_seed ".  # init seed for sv and teal
+			  "$dictionary_cmd " .
+			  " $options{\"args_run\"} " .
+			  " +out_file+$result_file "
+			 );
+#    print "ks*****","$the_run_command","*****\n";
+
+      truss_system($the_run_command);
+    }
+    elsif (uc $ENV{SIM} eq "ALDEC"){
+      $the_run_command = ("cd $RESULT_DIR; " .
+			  "source $ENV{\"ALDEC_HOME\"}/etc/setenv " .
+			  "vsim -do $ENV{\"TRUSS_HOME\"}/bin/asim.do " .
+			  "work.top ".
+			  "-pli $RESULT_DIR/hdl/$options{\"test\"}.$ENV{\"SIM\"}.so " .
+			  "+seed+$this_seed " .
+			  "$dictionary_cmd " .
+			  "+out_file+$result_file ".
+			  "+access +w"
+			 );
+
+      truss_system($the_run_command);
+    }
+    elsif (uc $ENV{SIM} eq "NCSIM"){
+
+      $the_run_command = ("cd $RESULT_DIR; " .
+			  "ncsim -REDUCE_MESSAGES -NOCOPYRIGHT -ACCWARN -RUN -LOGFILE " .
+			  " ncsim.log ncvlog_lib.ncvlog_lib:ncvlog_lib " .
+			  "+seed+$this_seed " .
+			  "$dictionary_cmd " .
+			  $options{"args_run"} .
+			  " +out_file+$result_file "
+			 );
+
+
+      truss_system($the_run_command);
+    }
+    elsif (uc $ENV{SIM} eq "IVL"){
+
+      $the_run_command = ("cd $RESULT_DIR; " .
+			  "vvp -m hdl/$options{\"test\"}.$ENV{\"SIM\"}.so  $options{\"test\"} " .
+			  "+seed+$this_seed " .
+			  "$dictionary_cmd " .
+			  $options{"args_run"} .
+			  " +out_file+$result_file "
+			 );
+
+
+      truss_system($the_run_command);
+    }
+
+  elsif (uc $ENV{SIM} eq "ATSIM"){
+      $the_run_command = ("./athdl_sv" .
+			  " +seed+$this_seed " .
+			  "$dictionary_cmd " .
+			  "$options{\"args_run\"} " .
+			  " +out_file+$result_file "
+			);
+	truss_system($the_run_command);
+    }
+    else {croak "Error! You shouldn't be here. Simulator not found";}
+
+    #
+    # POST RUN ANALYSIS
+    #
+    
+    #
+    # Simple Case for one passing test:
+    #
+    print "Checking results\n";
+    (-e "$result_file") or croak "Cannot find result file [$result_file], Result of simulation unknown\n";
+    
+    $good_result = `grep -ic passed $result_file`;
+    if ($debug) { 
+      print "\$good_result = $good_result (\`grep -ic passed $result_file\`)\n";};
+
+    $failed_result = `grep -ic failed $result_file`;
+    if ($debug) { print "\$failed_result = $failed_result (\`grep -ic failed $result_file\`) \n";};
+
+    $failed_result += `grep -ic error $result_file`;
+    if ($debug) { print "\$failed_result = $failed_result (\`grep -ic error $result_file\`) \n";};
+    
+    #
+    #
+    #
+    if ($good_result >= 1) {
+      print "Test Passed! $good_result\n";
+      $passed++;
+    }
+    elsif ($failed_result >= 1){
+      print "Test Failed! $failed_result problems seen\n";
+      $failed++;
+    }
+    else{
+      print "Unknown Result";
+      $unknown++;
+    }
+  }
+
+
+
+
+  #  set now = `date`
+  #  echo "Completed simulation(s) at $now"
+  #  echo "\n\nTotal results (of $total_tests): PASS: $passed FAIL: $failed ERROR: $errored\n";
+  
+  print "\n\n";
+  print "-" x 80 . "\n";
+  print "Completed simulation" . (($runs >1) ? "s " : " " . "on ") . (localtime(time())) . "\n";
+  
+  # Most common case is running one test. Make it print nicley
+  if ($runs <= 1){
+    if ($failed){croak "\nError! Test failed!";}
+    elsif ($unknown){croak "\nError! Test didn't seem to pass or fail!";}
+    elsif ($passed){print "\nSuccess! Test passed!\n";}
+    else{croak "\nError! We shouldn't be here!"}
+  }
+  else{
+      if ($debug) {print"\nPASSED $passed\nFAILED $failed\nUNKNOWN $unknown\n"};    
+      print ( "\nResults of running $runs tests was that " .
+	      (($passed) ? " $passed PASSED, " :"" ) .
+	      (($failed) ? " $failed FAILED\n " :  "" ) . 
+	      (($unknown) ? " and $unknown exited with UNKNOWN status" : "") .
+	      "\n");  
+  }
+  print "-" x 80 . "\n";
+}
+
+
+#--
+#-- Print util;
+#--
+sub truss_system{
+  my ($command) = @_;
+  if ($debug) {print $command . "\n";}
+  system ($command) == 0 or croak "System call failed";
+}

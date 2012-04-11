@@ -1,0 +1,11 @@
+
+$PROJECT_HOME/rtl/alu_top.v
+
+  //should this be config specific? and if so, how to get the right name? or just interfaces.sv ?
+  $PROJECT_HOME/verification/testbench/top/interfaces_alu.sv
+
+//the test is picked by truss
+ //the truss sources are picked up by the truss
+  
+  -f $PROJECT_HOME/verification/test_components/hdl_paths.vc
+  -f $PROJECT_HOME/verification/vip/hdl_paths.vc

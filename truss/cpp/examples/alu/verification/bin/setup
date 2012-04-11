@@ -1,0 +1,4 @@
+
+setenv TRUSS_HOME $BOOK_HOME/truss/cpp
+setenv TEAL_HOME $BOOK_HOME/teal/cpp
+setenv PROJECT_HOME $TRUSS_HOME/examples/alu

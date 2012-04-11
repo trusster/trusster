@@ -1,0 +1,20 @@
+
++incdir+$PROJECT_HOME/verification/vip/uart/
+ $PROJECT_HOME/verification/vip/uart/uart_bfm.sv
+ $PROJECT_HOME/verification/vip/uart/uart_bfm_agent.sv
+ $PROJECT_HOME/verification/vip/uart/uart_checker.sv
+ $PROJECT_HOME/verification/vip/uart/uart_checker_agent.sv
+ $PROJECT_HOME/verification/vip/uart/uart_generator.sv
+ $PROJECT_HOME/verification/vip/uart/uart_generator_agent.sv
+ $PROJECT_HOME/verification/vip/uart/uart_configuration.sv   
+
++incdir+$PROJECT_HOME/verification/vip/wishbone/
+ $PROJECT_HOME/verification/vip/wishbone/wb_mast.v
+ $PROJECT_HOME/verification/vip/wishbone/wishbone_driver.v
+ $PROJECT_HOME/verification/vip/wishbone/wishbone_driver.sv
+ $PROJECT_HOME/verification/vip/wishbone/wishbone_memory_bank.sv   
+   
++incdir+$PROJECT_HOME/verification/vip/uart_16550/
+ $PROJECT_HOME/verification/vip/uart_16550/uart_16550_sfm.sv
+ $PROJECT_HOME/verification/vip/uart_16550/uart_16550_agent.sv
+  

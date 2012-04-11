@@ -1,0 +1,5 @@
+
++incdir+$PROJECT_HOME/verification/test_components
+$PROJECT_HOME/verification/test_components/uart_basic_test_component.sv
+
+  
