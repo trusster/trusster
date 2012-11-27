@@ -69,11 +69,11 @@ private:
 #if defined (vpi_2_0)
 ///////////////////////////////////////////////
 ///////////////////////////////////////////////
-#if defined (vcs)
-void teal_memory_note_call_2_0 (int user_data, int reason)
-#else
+//#if defined (vcs)
+//void teal_memory_note_call_2_0 (int user_data, int reason)
+//#else
 int teal_memory_note_call_2_0 (char*)
-#endif
+//#endif
 {
     //Is there an easier way?
   vpiHandle my_call = vpi_handle (vpiSysTfCall, 0);
@@ -348,8 +348,8 @@ regular_memory_bank::regular_memory_bank (const std::string& path) :
   bit_length_ = the_node.node_vec_size;
   local_log << teal_debug << "Registering memory " << path_ << " # bits: " << dec <<  bit_length_ << 
     " bank length is " << last_memory_address_ << endm;
-    local_log << teal_debug << "Memory ctor: bytes_per_group_ " <<  bytes_per_group_ << 
-      " bit_length_ : " << bit_length_ << hex << " aval_start: " << (uint32)aval_start_ << endm;
+  local_log << teal_debug << "Memory ctor: bytes_per_group_ " <<  bytes_per_group_
+            <<     " bit_length_ : " << bit_length_ << hex << " aval_start: " << (uint64)aval_start_ << endm;
 }
 
 

@@ -143,7 +143,7 @@ void teal::vreg::connect_ () {
 
 #if defined (vpi_2_0)
   if (! handle_) {
-    local_log << teal_error << "Unable to get handle for \"" << path_and_name_ << "\" size:" << path_and_name_.size () << endm;
+    local_log << teal_error << "Unable to get handle for \"" << path_and_name_ << "\" size:" << (int)path_and_name_.size () << endm;
     vpi_control (vpiFinish);
   }
 
