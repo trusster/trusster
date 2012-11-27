@@ -109,14 +109,12 @@ else
 ifeq ($(SIM),ncsim)
   CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=ncsim -Dncsim -Dvpi_2_0 
 else
-ifeq ($(SIM),vcs)
-  CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=vcs -Dvcs
-else
 ifeq ($(SIM),vcs_2_0)
   CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=vcs -Dvcs -Dvpi_2_0
 else
-  CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=$SIM -Dvpi_2_0
-endif
+ifeq ($(SIM),vcs)
+  CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=vcs -Dvcs
+else
 ifeq ($(SIM),cver)
   CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=cver -Dcver
 else
@@ -129,7 +127,8 @@ else
 ifeq ($(SIM),aldec)
   CFLAGS = -Wall $(OPT) $(D_OPT) -DSIM=aldec -Daldec
 else
-  CFLAGS = "Unknown Simulator type!"
+  CFLAGS = "Unknown Simulator type! .$(SIM)."
+endif
 endif
 endif
 endif
@@ -162,10 +161,10 @@ ifeq ($(SIM),ncsim)
 #	$(SYS_ARCH_CC) $(ARCH_RELOCATE_OPT) $(TEST).o -o libpli.so $(SP)  -L.. -L/usr/local/lib  -L. ../libteal.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
 	$(SYS_ARCH_CC) $(ARCH_RELOCATE_OPT) $(TEST).o -o libvpi.so $(SP)  -L.. -L/usr/local/lib  -L. ../libteal.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
 endif
-ifeq ($(SIM),vcs)
+ifeq ($(SIM),vcs_2_0)
 	$(SYS_ARCH_CC) $(ARCH_RELOCATE_OPT) $(TEST).o -o $@ $(SP)  -L.. -L/usr/local/lib  ../libteal.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
 endif
-ifeq ($(SIM),vcs_2_0)
+ifeq ($(SIM),vcs)
 	$(SYS_ARCH_CC) $(ARCH_RELOCATE_OPT) $(TEST).o -o $@ $(SP)  -L.. -L/usr/local/lib  ../libteal.$(SIM).a -lstdc++ -lpthread  -shared $(CFLAGS)
 endif
 ifeq ($(SIM),cver)
